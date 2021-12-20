@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <title>KwataHelp - <%= page %></title>
+    <!-- Favicon-->
+	<link rel="icon" href="/images/icon.png" type="image/x-icon">
+    <!-- Plugins Core Css -->
+    <link href="/source/light/assets/css/app.min.css" rel="stylesheet">
+    <link href="/source/light/assets/css/form.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/xcode.min.css" />
+    <link href="/css/bootstrap-select-country.min.css" rel="stylesheet">
+    <link rel='stylesheet' href='/js/intl-tel-input-17.0.0/build/css/intlTelInput.css' type='text/css' media='all' />
+    <!-- Custom Css -->
+    <link href="/source/light/assets/css/style.css" rel="stylesheet" />
+    <!-- Theme style. You can choose a theme from css/themes instead of get all themes -->
+    <link href="/source/light/assets/css/styles/all-themes.css" rel="stylesheet" />
+    <link href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css" rel="stylesheet">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js" type="text/javascript"></script>
+    <style>
+        .loading-img-spin {
+            position: absolute;
+            top: 50%;
+            left: 49.5%;
+            width: 50px;
+            height: 50px;
+            margin: -60px 0 20px -20px;
+            -webkit-animation: spin 1.5s linear infinite;
+            -moz-animation: spin 1.5s linear infinite;
+            animation: spin 1.5s linear infinite;
+        }
+        .theme-black .navbar {
+            background-color: #4068a3;
+        }
+
+        .btn-hover.color-7 {
+            background-image: linear-gradient(to right, #78ae61, #4068a3, #78ae61, #4068a3);
+            -webkit-box-shadow: 0 4px 15px 0 rgb(45 54 65 / 75%);
+            -moz-box-shadow: 0 4px 15px 0 rgba(45, 54, 65, 0.75);
+            -ms-box-shadow: 0 4px 15px 0 rgba(45, 54, 65, 0.75);
+            box-shadow: 0 4px 15px 0 rgb(45 54 65 / 75%);
+        }
+
+        .select2-container--default .select2-selection--single {
+            background-color: #fff;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        select.bs-select-hidden,
+        select.selectpicker {
+            display: block !important;
+            opacity: 1 !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .bootstrap-select:not([class*="col-"]):not([class*="form-control"]):not(.input-group-btn) {
+            width: 100% !important;
+        }
+
+        .bootstrap-select .dropdown-toggle {
+            display: block;
+        }
+
+        .bootstrap-select>select {
+            position: absolute !important;
+            bottom: 0;
+            left: 0%;
+        }
+
+        .bootstrap-select.btn-group .dropdown-toggle .filter-option {
+            display: inline-block;
+            overflow: hidden;
+            width: 74%;
+            position: relative;
+            text-align: left;
+            top: 0px !important;
+            left: 0rem;
+            margin-left: 0px !important;
+        }
+
+        .iti input,
+        .iti input[type=text],
+        .iti input[type=tel] {
+            position: relative;
+            z-index: 0;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            padding-right: 36px;
+            margin-right: 0;
+            padding-left: 4rem !important;
+            width: 82% !important;
+        }
+    </style>
+</head>
+
+<body class="light">
+    <!-- Page Loader -->
+    <div class="page-loader-wrapper">
+        <div class="loader">
+            <div class="m-t-30">
+                <img class="loading-img-spin" src="/images/icon.png" width="20" height="20" alt="admin" style="border-radius: 100%;">
+            </div>
+            <p>Un instant...</p>
+        </div>
+    </div>
+    <!-- #END# Page Loader -->
+    <!-- Overlay For Sidebars -->
+    <div class="overlay"></div>
+    <!-- #END# Overlay For Sidebars -->
+    <%-include('sidebar')-%> 
+    <div>
+        <!-- Left Sidebar -->
+        <aside id="leftsidebar" class="sidebar">
+            <!-- Menu -->
+            <div class="menu">
+                <ul class="list">
+                    <li>
+                        <div class="sidebar-profile clearfix">
+                            <div class="profile-img">
+                                <img src="<%= userdata.image %>" alt="profile">
+                            </div>
+                            <div class="profile-info">
+                                <h3><%= userdata.name %> </h3>
+                                <p>Bienvenue <%= userdata.name %> </p>
+                               
+                            </div>
+                        </div>
+                    </li>
+                    <li class="<%= menu == '' ? 'active' : '' %>">
+                        <a href="/dashboard" class="menu-toggle">
+                            <i class="menu-icon ti-home"></i>
+                            <span>Accueil</span>
+                        </a>
+                    </li>
+                    <li class="<%= menu == 'user' ? 'active' : '' %>">
+                        <a href="#" onClick="return false;" class="menu-toggle">
+                            <i class="menu-icon ti-user"></i>
+                            <span>Utilisateurs</span>
+                        </a>
+                        <ul class="ml-menu">
+                            <li>
+                                <a href="/dashboard/users/user">Simples utilisateurs </a>
+                               
+                            </li>
+                            <li>
+                                <a href="/dashboard/users/provider">Prestataires de services </a>
+                            </li>
+                            <li>
+                                <a href="/dashboard/users/agent">Agents de rue</a>
+                            </li>
+                            <li>
+                                <a href="/dashboard/users/region_admin">Responsables regionaux</a>
+                            </li>
+                            <li>
+                                <a href="/dashboard/users/national_admin">Responsables nationaux</a>
+                            </li>
+                            <li>
+                                <a href="/dashboard/users/add">Ajouter</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="<%= menu == 'category' ? 'active' : '' %>">
+                        <a href="#" onClick="return false;" class="menu-toggle">
+                            <i class="menu-icon ti-list"></i>
+                            <span>Catégories</span>
+                        </a>
+                        <ul class="ml-menu">
+                            <li>
+                                <a href="/dashboard/categories">Listes</a>
+                            </li>
+                            <li>
+                                <a href="/dashboard/categories/add">Ajouter</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="<%= menu == 'location' ? 'active' : '' %>">
+                        <a href="/dashboard/locations/pays"  class="menu-toggle">
+                            <i class="menu-icon ti-location-pin"></i>
+                            <span>Pays, regions et quartiers</span>
+                        </a>
+                       
+                    </li>
+                    <li class="<%= menu == 'chat' ? 'active' : '' %>">
+                        <a href="#" onClick="return false;" class="menu-toggle">
+                            <i class="menu-icon ti-bag"></i>
+                            <span>Kwata Job</span>
+                        </a>
+                        <ul class="ml-menu">
+                            <li>
+                                <a href="/dashboard/categories">Liste de services</a>
+                            </li>
+                            <li>
+                                <a href="/dashboard/categories/add">Ajouter</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="<%= menu == 'chat' ? 'active' : '' %>">
+                        <a href="#" onClick="return false;" class="menu-toggle">
+                            <i class="menu-icon ti-shopping-cart-full"></i>
+                            <span>Kwata Shop</span>
+                        </a>
+                        <ul class="ml-menu">
+                            <li>
+                                <a href="/dashboard/categories">Liste d'offres</a>
+                            </li>
+                            <li>
+                                <a href="/dashboard/categories/add">Commandes</a>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                </ul>
+            </div>
+            <!-- #Menu -->
+          
+        </aside>
+        <!-- #END# Left Sidebar -->
+        <!-- Right Sidebar -->
+        <aside id="rightsidebar" class="right-sidebar">
+            <ul class="nav nav-tabs tab-nav-right" role="tablist">
+                <li role="presentation">
+                    <a href="#skins" data-toggle="tab" class="active">SKINS</a>
+                </li>
+                <li role="presentation">
+                    <a href="#settings" data-toggle="tab">SETTINGS</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane in active in active stretchLeft" id="skins">
+                    <div class="demo-skin">
+                        <div class="rightSetting">
+                            <p>GENERAL SETTINGS</p>
+                            <ul class="setting-list list-unstyled m-t-20">
+                                <li>
+                                    <div class="form-check">
+                                        <div class="form-check m-l-10">
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" type="checkbox" value="" checked> Save
+                                                History
+                                                <span class="form-check-sign">
+                                                    <span class="check"></span>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="form-check">
+                                        <div class="form-check m-l-10">
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" type="checkbox" value="" checked> Show
+                                                Status
+                                                <span class="form-check-sign">
+                                                    <span class="check"></span>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="form-check">
+                                        <div class="form-check m-l-10">
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" type="checkbox" value="" checked> Auto
+                                                Submit Issue
+                                                <span class="form-check-sign">
+                                                    <span class="check"></span>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="form-check">
+                                        <div class="form-check m-l-10">
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" type="checkbox" value="" checked> Show
+                                                Status To All
+                                                <span class="form-check-sign">
+                                                    <span class="check"></span>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="rightSetting">
+                            <p>SIDEBAR MENU COLORS</p>
+                            <button type="button" class="btn btn-sidebar-light btn-border-radius p-l-20 p-r-20">Light</button>
+                            <button type="button" class="btn btn-sidebar-dark btn-default btn-border-radius p-l-20 p-r-20">Dark</button>
+                        </div>
+                        <div class="rightSetting">
+                            <p>THEME COLORS</p>
+                            <button type="button" class="btn btn-theme-light btn-border-radius p-l-20 p-r-20">Light</button>
+                            <button type="button" class="btn btn-theme-dark btn-default btn-border-radius p-l-20 p-r-20">Dark</button>
+                        </div>
+                        <div class="rightSetting">
+                            <p>SKINS</p>
+                            <ul class="demo-choose-skin choose-theme list-unstyled">
+                                <li data-theme="black" class="actived">
+                                    <div class="black-theme"></div>
+                                </li>
+                                <li data-theme="white">
+                                    <div class="white-theme white-theme-border"></div>
+                                </li>
+                                <li data-theme="purple">
+                                    <div class="purple-theme"></div>
+                                </li>
+                                <li data-theme="blue">
+                                    <div class="blue-theme"></div>
+                                </li>
+                                <li data-theme="cyan">
+                                    <div class="cyan-theme"></div>
+                                </li>
+                                <li data-theme="green">
+                                    <div class="green-theme"></div>
+                                </li>
+                                <li data-theme="orange">
+                                    <div class="orange-theme"></div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="rightSetting">
+                            <p>Disk Space</p>
+                            <div class="sidebar-progress">
+                                <div class="progress m-t-20">
+                                    <div class="progress-bar l-bg-cyan shadow-style width-per-45" role="progressbar"
+                                        aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <span class="progress-description">
+                                    <small>26% remaining</small>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="rightSetting m-b-15">
+                            <p>Server Load</p>
+                            <div class="sidebar-progress">
+                                <div class="progress m-t-20">
+                                    <div class="progress-bar l-bg-orange shadow-style width-per-63" role="progressbar"
+                                        aria-valuenow="63" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <span class="progress-description">
+                                    <small>Highly Loaded</small>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane stretchRight" id="settings">
+                    <div class="demo-settings">
+                        <p>GENERAL SETTINGS</p>
+                        <ul class="setting-list">
+                            <li>
+                                <span>Report Panel Usage</span>
+                                <div class="switch">
+                                    <label>
+                                        <input type="checkbox" checked>
+                                        <span class="lever switch-col-green"></span>
+                                    </label>
+                                </div>
+                            </li>
+                            <li>
+                                <span>Email Redirect</span>
+                                <div class="switch">
+                                    <label>
+                                        <input type="checkbox">
+                                        <span class="lever switch-col-blue"></span>
+                                    </label>
+                                </div>
+                            </li>
+                        </ul>
+                        <p>SYSTEM SETTINGS</p>
+                        <ul class="setting-list">
+                            <li>
+                                <span>Notifications</span>
+                                <div class="switch">
+                                    <label>
+                                        <input type="checkbox" checked>
+                                        <span class="lever switch-col-purple"></span>
+                                    </label>
+                                </div>
+                            </li>
+                            <li>
+                                <span>Auto Updates</span>
+                                <div class="switch">
+                                    <label>
+                                        <input type="checkbox" checked>
+                                        <span class="lever switch-col-cyan"></span>
+                                    </label>
+                                </div>
+                            </li>
+                        </ul>
+                        <p>ACCOUNT SETTINGS</p>
+                        <ul class="setting-list">
+                            <li>
+                                <span>Offline</span>
+                                <div class="switch">
+                                    <label>
+                                        <input type="checkbox" checked>
+                                        <span class="lever switch-col-red"></span>
+                                    </label>
+                                </div>
+                            </li>
+                            <li>
+                                <span>Location Permission</span>
+                                <div class="switch">
+                                    <label>
+                                        <input type="checkbox">
+                                        <span class="lever switch-col-lime"></span>
+                                    </label>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+          
+        </aside>
+        <!-- #END# Right Sidebar -->
+        
+    </div>

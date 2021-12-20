@@ -1,0 +1,133 @@
+<%-include('../partials/header')-%> 
+<style>
+    input[type=text], input[type=email]{
+      border: 1px solid #0f3042 !important;
+      border-radius: 5px !important;
+      background: transparent !important;
+      padding: 0px 7px !important;
+    }
+    input[type=text]:focus, input[type=email]:focus{
+      border: 1px solid #78ae61 !important;
+      -webkit-box-shadow: 0 1px 0 0 #78ae61 !important;
+      box-shadow: 0 1px 0 0 #78ae61 !important;
+    }
+    .form-group .form-control{
+        width: 97% !important;
+    }
+    .eleve_form, .ecole_form{
+        display: none;
+        margin-top: 1rem;
+    }
+    .logementtype_selector h3{
+        text-align: center;
+    }
+    .logementtype_selector{
+        border: 1px #4169a3 solid;
+        color: black;
+        width: 48%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        border-radius: 15px;
+    }
+    .logementtype_selector.active{
+        border: 1px #4169a3 solid;
+        color: white;
+        background-color: #4169a3;
+        width: 48%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        border-radius: 15px;
+    }
+    .logementtype_selector:hover{
+        border: 1px #4169a3 solid;
+        color: white;
+        background-color: #4169a3;
+        -webkit-transition: background-color 400ms linear;
+        -ms-transition: background-color 400ms linear;
+        transition: background-color 400ms linear;
+        width: 48%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        border-radius: 15px;
+        cursor: pointer;
+    }
+    .divselectorentoure{
+        padding: 1rem;
+    }
+    .addinglogement hr{
+        width: 100%;
+        margin-bottom: 2rem;
+        border-top: 2px solid rgb(64 104 163);
+    }
+</style>
+<section class="content addinglogement">
+    <div class="container-fluid">
+        <div class="content" style="padding-top:30px;">
+            <div class="container-fluid">
+                <div class="row clearfix">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="card">
+                            <div class="header">
+                                <h2>
+                                    <%= page %>
+                                </h2>
+                            </div>
+                            <div class="body">
+
+                                <div class="ecole_for active">
+                                    <form class="location" enctype="multipart/form-data" method="post" action="/dashboard/locations">
+                                        <input type="hidden" class="data_id" name="id" value="<%= data?._id||'no' %>">
+                                        <% if(!data){ %>
+                                            <input type="hidden" name="idPays" value="<%= id_pays %>">
+                                            <input type="hidden" name="idRegion" value="<%= id_region %>">
+                                            <input type="hidden" name="idVille" value="<%= id_ville %>">
+                                        <% } %>
+                                        <input type="hidden" name="type" value="<%= type %>">
+
+                                        <div class="row">
+                                            <% if(type=='pays'){ %>
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="">Code du pays *</label>
+                                                        <input type="text" required class="form-control value" maxlength="3" placeholder="Code ex: CM" name="code" value="<%= data?.code %>">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-9">
+                                                    <div class="form-group">
+                                                        <label for="">Nom *</label>
+                                                        <input type="text" required class="form-control value" placeholder="Nom" name="name" value="<%= data?.name %>">
+                                                    </div>
+                                                </div>
+                                            <% } %>
+                                            <% if(type!='pays'){ %>
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="">Nom *</label>
+                                                        <input type="text"  required class="form-control value" placeholder="Nom" name="name" value="<%= data?.name %>">
+                                                    </div>
+                                                </div>
+                                            <% } %>
+                                           
+                                            
+                                           
+                                            <div class="col-md-12" style="display: flex;justify-content: center;">
+                                                <button class="btn-hover btn-border-radius color-7 submit_location" type="submit" attr-type="save">Sauvegarder</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<%-include('../partials/footer')-%> 

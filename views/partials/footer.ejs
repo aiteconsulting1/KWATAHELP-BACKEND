@@ -1,0 +1,453 @@
+
+    <!-- Plugins Js -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="/js/ckeditor/ckeditor.js"></script>
+	<script src="/js/ckeditor/adapters/jquery.js"></script>
+    <script>
+    $(window).on('load', function(e){
+  
+        e.preventDefault();
+            $.ajax({
+                url: '/dashboard/notifications',
+                type: 'GET',
+                success: function(data) {
+                $("#notifications").html(data)
+                }
+            });
+    });
+   
+
+    </script>
+    <script src="/source/light/assets/js/app.min.js"></script>
+    <script src="/source/light/assets/js/form.min.js"></script>
+    <!-- Custom Js -->
+    <script src="/source/light/assets/js/admin.js"></script>
+    <script src="/source/light/assets/js/table.min.js"></script>
+    <script src="/source/light/assets/js/pages/forms/basic-form-elements.js"></script>
+    <script src="/source/light/assets/js/bundles/export-tables/dataTables.buttons.min.js"></script>
+    <script src="/source/light/assets/js/bundles/export-tables/buttons.flash.min.js"></script>
+    <script src="/source/light/assets/js/bundles/export-tables/jszip.min.js"></script>
+    <script src="/source/light/assets/js/bundles/export-tables/pdfmake.min.js"></script>
+    <script src="/source/light/assets/js/bundles/export-tables/vfs_fonts.js"></script>
+    <script src="/source/light/assets/js/bundles/export-tables/buttons.html5.min.js"></script>
+    <script src="/source/light/assets/js/bundles/export-tables/buttons.print.min.js"></script>
+    <script src="/source/light/assets/js/pages/tables/jquery-datatable.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+    <script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
+    <script src="/js/vanilla-toast-main/lib/vanilla-toast.min.js"></script>
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+    <script src="/js/bootstrap-select-country.min.js"></script> 
+    <script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
+    <script src="/js/intl-tel-input-17.0.0/build/js/intlTelInput.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script>
+  
+        const socket = io("http://localhost:6001");
+        socket.emit('login',{userId:'<%= user_admin_id %>'});
+        socket.on("new_message", (arg) => {
+            var notif_data = JSON.parse(arg)
+            if (notif_data.to._id == "<%= user_admin_id %>") {
+                vt.info(notif_data.from.name+" : "+notif_data.message.substring(0, 50)+"...",{
+                    title: "Vous avez un nouveau message",
+                    duration: 50000,
+                    position: "top-right",
+                    closable: true,
+                    focusable: true,
+                    callback: undefined
+                });
+            }
+        });
+        socket.on("notification", (arg) => {
+            var notif_data = arg
+            $.ajax({
+                url: '/dashboard/notifications',
+                type: 'GET',
+                success: function(data) {
+                $("#notifications").html(data)
+                }
+            });
+            if (notif_data.toAdmin) {
+                var audio = new Audio("http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3");
+                audio.play()
+            }
+        });
+    </script>
+          
+    <% if(menu == "user"){ %>
+            <script>
+                var errorMap = ["Numéro invalide", "Code pays invalide", "Trop court", "Trop long", "Numéro invalide"];
+               
+                var input30 = document.querySelector(".zcode30");
+                var iti30 = window.intlTelInput(input30, {
+                    initialCountry: "cm",
+                    geoIpLookup: function (callback) {
+                        $.get('https://ipinfo.io', function () { }, "jsonp").always(function (resp) {
+                            var countryCode = (resp && resp.country) ? resp.country : "";
+                            callback(countryCode);
+                            console.log(countryCode);
+                        });
+                    },
+                    utilsScript: "/js/intl-tel-input-17.0.0/build/js/utils.js"
+                });
+                input30.addEventListener('blur', function () {
+                    if (input30.value.trim()) {
+                        if (iti30.isValidNumber()) {
+                            //   validMsg.classList.remove("hide");
+                        } else {
+                            swal(
+                                'Erreur !',
+                                "Veuillez entrer un numéro valide, votre numéro est " + errorMap[iti30.getValidationError()] + "",
+                                'error'
+                            );
+                        }
+                    }
+                });
+                
+            </script>
+    <% } %>
+    <script src="/js/user.js"></script>
+   
+    <% if(menu == "chat"){ %>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.25.1/moment.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/fr.min.js" integrity="sha512-RAt2+PIRwJiyjWpzvvhKAG2LEdPpQhTgWfbEkFDCo8wC4rFYh5GQzJBVIFDswwaEDEYX16GEE/4fpeDNr7OIZw==" crossorigin="anonymous"></script>
+        <script>
+            socket.emit('login',{userId:'<%= admin %>'});
+            var onglet = 0;
+            var files_attach;
+            // var dest = "";
+            // var to_nom = "";
+            socket.on('connect', () => {
+                console.log("Connecté aux sockets");
+            });
+            socket.on("retour_message_file", (arg) => {
+                console.log("Un nouveau fichier emit");
+                console.log(arg);
+                var attach_data = JSON.parse(arg)
+                if (attach_data.from._id == "<%= admin %>") {
+                    var data = new FormData();
+                    data.append('file', files_attach);
+                    $.ajax({
+                        url: '/upload-chat-image/'+attach_data._id,
+                        type: 'POST',
+                        processData: false,
+                        contentType: false,
+                        data: data,
+                        success: function (data) {
+                            console.log(data);
+                            console.log(data.data);
+                            socket.emit("image_uploaded", data.data);
+                        },
+                        error: function (error) {
+                            console.log(error);
+                            vt.error("Une erreur lors de l'upload de votre image est survenue, veuillez reessayer plutard !",{
+                                title: "Erreur !",
+                                position: "top-center",
+                                duration: 5000,
+                                closable: true,
+                                focusable: true,
+                                callback: undefined
+                            });
+                        }
+                    })
+                }
+            });
+            socket.on("new_message", (arg) => {
+                console.log("Vous avez un nouveau message");
+                console.log(arg);
+                var notif_data = JSON.parse(arg)
+                // vt.info(notif_data.from.name+" : "+notif_data.message.substring(0, 50)+"...",{
+                //     title: "Vous avez un nouveau message",
+                //     duration: 50000,
+                //     position: "top-right",
+                //     closable: true,
+                //     focusable: true,
+                //     callback: undefined
+                // });
+                var actual_date = new Date();
+                $('.chat'+notif_data.conversation+' .chat-history ul').animate({ scrollTop: $('.chat'+notif_data.conversation+' .chat-history ul').prop("scrollHeight")}, 1000);
+                $('.chat'+notif_data.conversation+' .chat-history ul').append(`
+                        <li>
+                          <div class="message-data">
+                            <span class="message-data-name">${notif_data.from.name}</span>
+                            <span class="message-data-time">${moment(actual_date).fromNow()}</span>
+                          </div>
+                          <div class="message my-message">
+                            <p>
+                              <span style="font-weight: bold;color: black;">-- Objet: ${notif_data.objet}</span><br>
+                              ${notif_data.message}
+                            </p>
+                            <div class="row"></div>
+                          </div>
+                        </li>`);
+            });
+            socket.on("new_file", (arg) => {
+                var upload_data = JSON.parse(arg)
+                console.log(upload_data);
+                var ficher = upload_data.file.split(".")[upload_data.file.split(".").length-1].toLowerCase();
+                if (upload_data.from._id == "<%= admin %>") {
+                    if (ficher == "png" || ficher == "jpg" || ficher == "jpeg" || ficher == "webp" || ficher == "svg") {
+                        $('.chat'+upload_data.conversation+' .chat-history ul').append(`
+                                <li>
+                                <div style="position: relative;display: flex;justify-content: flex-end;margin-bottom: 5rem;">
+                                    <img src="${upload_data.file}" style="height: 10rem;width: 10rem;object-fit: contain;">
+                                </div>
+                                </li>`);
+                    } else {
+                        $('.chat'+upload_data.conversation+' .chat-history ul').append(`
+                                <li>
+                                <div style="position: relative;display: flex;justify-content: flex-end;margin-bottom: 5rem;">
+                                    <a href="${upload_data.file}" target="_blank">Cliquer pour voir le fichier <i class="material-icons" style="font-size:15px;position: relative;top: 3px;">remove_red_eye</i></a>
+                                </div>
+                                </li>`);
+                    }
+                } else {
+                    if (ficher == "png" || ficher == "jpg" || ficher == "jpeg" || ficher == "webp" || ficher == "svg") {
+                        $('.chat'+upload_data.conversation+' .chat-history ul').append(`
+                                <li>
+                                <div style="position: relative;display: flex;justify-content: flex-start;margin-bottom: 5rem;">
+                                    <img src="${upload_data.file}" style="height: 10rem;width: 10rem;object-fit: contain;">
+                                </div>
+                                </li>`);
+                    } else {
+                        $('.chat'+upload_data.conversation+' .chat-history ul').append(`
+                                <li>
+                                <div style="position: relative;display: flex;justify-content: flex-start;margin-bottom: 5rem;">
+                                    <a href="${upload_data.file}" target="_blank">Cliquer pour voir le fichier <i class="material-icons" style="font-size:15px;position: relative;top: 3px;">remove_red_eye</i></a>
+                                </div>
+                                </li>`);
+                    }
+                }
+            });
+            socket.on("test", (arg) => {
+                console.log(arg);
+            });
+            $('.search_discuss').on('keyup', function () {
+                var value = $(this).val();
+                value = value.toLowerCase();
+                $(".chatonglet").filter(function() {
+                    $(this).toggle(
+                        $(this)
+                            .text()
+                            .toLowerCase()
+                            .indexOf(value) > -1
+                    );
+                });
+            })
+            $('.send_msg').on('click', function () {
+                console.log("fucntion entré");
+                var objet = $(".objet_message").val();
+                var message = $(".text_message").val();
+                console.log(message);
+                var from = "<%= admin %>";
+                // var to = dest;
+                files_attach = $('.attach_file')[0].files[0];
+                var from_nom = "";
+                var message_formatted = message.replaceAll('\n','<br>');
+                var data = {
+                    objet,
+                    message:message_formatted,
+                    from,
+                    to: $('.chatonglet.active').attr('attr-destinataire'),
+                    to_nom: $('.chatonglet.active').attr('attr-nom'),
+                    from_nom,
+                    conversation: $('.chatonglet.active').attr('attr-conversation'),
+                    hasFile: files_attach == undefined ? false : true
+                }
+                data = JSON.stringify(data);
+                console.log(data);
+                var actual_date = new Date();
+                scrollDownChat()
+                var ongletchat = $('.chatonglet.active').attr('attr-onglet');
+                // console.log(message.replace('\n','<br>'));
+                console.log(files_attach);
+                $('.chat'+ongletchat+' .chat-history ul').append(`
+                        <li class="clearfix">
+                        <div class="message-data text-right">
+                            <span class="message-data-time">${moment(actual_date).fromNow()}</span>
+                            &nbsp; &nbsp;
+                            <span class="message-data-name">Vous</span>
+                        </div>
+                        <div class="message other-message float-right">
+                            <span style="font-weight: bold;color: black;">-- Objet: ${objet}</span><br>
+                            ${message_formatted}
+                        </div>
+                        </li>`);
+                $(".objet_message").val("");
+                $(".text_message").val("");
+                socket.emit("message", data);
+            })
+            $('.chatonglet').on('click', function () {
+                $('.chatonglet').removeClass('active');
+                $(this).addClass('active');
+                // var imgSrc = $(this).find('img').prop('src');
+                // var nameConvers = $(this).find('div.name').text('');
+                onglet = $(this).attr('attr-onglet');
+                // dest = $(this).attr('attr-destinataire');
+                // to_nom = $(this).attr('attr-nom');
+                $('.ongletchat').hide();
+                $('.chat'+onglet).fadeIn(400);
+                scrollDownChat()
+                // $('.chat'+onglet).
+            })
+            window.onload = scrollDownChat();
+            function scrollDownChat() {
+                var ongletchat = $('.chatonglet.active').attr('attr-onglet');
+                $('.chat'+ongletchat+' .chat-history ul').animate({ scrollTop: $('.chat'+ongletchat+' .chat-history ul').prop("scrollHeight")}, 1000);
+            }
+         
+        </script>
+    <% } %>
+    <% if(page == "Dashboard"){ %>
+        <!-- Echart Js -->
+        <script src="/source/light/assets/js/bundles/echart/echarts.js"></script>
+        <script src="/source/light/assets/js/pages/charts/echarts.js"></script>
+        <!-- End Echart Js -->
+
+        <script src="/source/light/assets/js/chart.min.js"></script>
+        <script src="/source/light/assets/js/bundles/amcharts4/core.js"></script>
+        <script src="/source/light/assets/js/bundles/amcharts4/charts.js"></script>
+        <script src="/source/light/assets/js/bundles/amcharts4/animated.js"></script>
+        <script src="/source/light/assets/js/pages/charts/jquery-knob.js"></script>
+        <script src="/source/light/assets/js/pages/sparkline/sparkline-data.js"></script>
+        <script src="/source/light/assets/js/pages/medias/carousel.js"></script>
+        <script src="/source/light/assets/js/pages/index.js"></script>
+        <script>
+            
+            $(function () {
+                amChartLineHomeDash();
+                amChartLineHomeDash2();
+                compareEcoleEtudiant();
+            });
+            
+            function compareEcoleEtudiant(){
+                /* Pie Chart */
+                var chart = document.getElementById('echart_pie_ecole_etudiant');
+                var barChart = echarts.init(chart);
+                barChart.setOption({
+                    tooltip: {
+                        trigger: "item",
+                        formatter: "{a} <br/>{b} : {c} ({d}%)"
+                    },
+                    legend: {
+                        x: "center",
+                        y: "bottom",
+                        data: ["Total Eleves", "Total Parents"]
+                    },
+
+                    calculable: !0,
+                    series: [{
+                        name: "Chart Data",
+                        type: "pie",
+                        radius: "55%",
+                        center: ["50%", "48%"],
+                        data: [{
+                            value: <%= nbre_user %>,
+                            name: "Total utilisateur"
+                        }, {
+                            value: <%= nbre_parent %>,
+                            name: "Total Parents"
+                        }]
+                    }],
+                    color: ['#4068a3', '#72BE81']
+                });
+            }
+            function amChartLineHomeDash() {
+                // Themes begin
+                am4core.useTheme(am4themes_animated);
+                // Themes end
+                // Create chart instance
+                var chart = am4core.create("amChartLineHome1", am4charts.XYChart);
+
+                // Add data
+                chart.data = [
+                    <% statdata_etudiant.reverse().forEach((stat)=>{ %>
+                        {
+                        "date": "<%= stat.createdAt %>",
+                        "price": <%= stat.count %>
+                        },
+                    <% }) %>
+                ];
+
+                // Create axes
+                var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+                dateAxis.renderer.grid.template.location = 0;
+                dateAxis.renderer.minGridDistance = 50;
+
+                var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+                valueAxis.logarithmic = true;
+                valueAxis.renderer.minGridDistance = 20;
+
+                // Create series
+                var series = chart.series.push(new am4charts.LineSeries());
+                series.dataFields.valueY = "price";
+                series.dataFields.dateX = "date";
+                series.tensionX = 0.8;
+                series.strokeWidth = 3;
+
+                var bullet = series.bullets.push(new am4charts.CircleBullet());
+                bullet.circle.fill = am4core.color("#fff");
+                bullet.circle.strokeWidth = 3;
+
+                // Add cursor
+                chart.cursor = new am4charts.XYCursor();
+                chart.cursor.fullWidthLineX = true;
+                chart.cursor.xAxis = dateAxis;
+                chart.cursor.lineX.strokeWidth = 0;
+                chart.cursor.lineX.fill = am4core.color("#000");
+                chart.cursor.lineX.fillOpacity = 0.1;
+
+
+            }
+            function amChartLineHomeDash2() {
+                // Themes begin
+                am4core.useTheme(am4themes_animated);
+                // Themes end
+                // Create chart instance
+                var chart = am4core.create("amChartLineHome2", am4charts.XYChart);
+
+                chart.data = [
+                    <% statdata_ecole.reverse().forEach((stat)=>{ %>
+                        {
+                            "date": "<%= stat.createdAt %>",
+                            "price": <%= stat.count %>
+                        },
+                    <% }) %>
+                ];
+                // Create axes
+                var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+                dateAxis.renderer.grid.template.location = 0;
+                dateAxis.renderer.minGridDistance = 50;
+
+                var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+                valueAxis.logarithmic = true;
+                valueAxis.renderer.minGridDistance = 20;
+
+                // Create series
+                var series = chart.series.push(new am4charts.LineSeries());
+                series.dataFields.valueY = "price";
+                series.dataFields.dateX = "date";
+                series.tensionX = 0.8;
+                series.strokeWidth = 3;
+
+                var bullet = series.bullets.push(new am4charts.CircleBullet());
+                bullet.circle.fill = am4core.color("#fff");
+                bullet.circle.strokeWidth = 3;
+
+                // Add cursor
+                chart.cursor = new am4charts.XYCursor();
+                chart.cursor.fullWidthLineX = true;
+                chart.cursor.xAxis = dateAxis;
+                chart.cursor.lineX.strokeWidth = 0;
+                chart.cursor.lineX.fill = am4core.color("#000");
+                chart.cursor.lineX.fillOpacity = 0.1;
+
+
+            }
+           
+        </script>
+    <% } %>
+</body>

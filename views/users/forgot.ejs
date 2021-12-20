@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- Mirrored from www.radixtouch.in/templates/admin/atrio/source/light/pages/examples/forgot-password.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 11 Feb 2019 01:24:56 GMT -->
+<head>
+	<meta charset="UTF-8">
+	<meta content="width=device-width, initial-scale=1" name="viewport" />
+	<title>Hostar - Bootstrap 4 Hospital Admin Dashboard Template</title>
+	<!-- Favicon-->
+	<link rel="icon" href="/source/light/assets/images/loca.png" type="image/x-icon">
+	<!-- Plugins Core Css -->
+	<link href="/source/light/assets/css/app.min.css" rel="stylesheet">
+	<!-- Custom Css -->
+	<link href="/source/light/assets/css/style.css" rel="stylesheet" />
+	<link href="/source/light/assets/css/pages/extra_pages.css" rel="stylesheet" />
+</head>
+
+<body>
+	<div class="limiter">
+		<div class="container-login100">
+			<div class="wrap-login100">
+				<form class="login100-form validate-form" method="POST" action="/forgot">
+					<%-include('../partials/messages')-%>
+					<span class="login100-form-title p-b-45">
+						Reset Password
+					</span>
+					
+					<span class="error-subheader2 p-t-20 p-b-15">
+						Enter your registered email address.
+					</span>
+					<input type="hidden" name="type" value="admin">
+					<div class="wrap-input100 validate-input" data-validate = "Valid email is required: ex@abc.xyz">
+						<input class="input100" type="text" name="email">
+						<span class="focus-input100"></span>
+						<span class="label-input100">Email</span>
+					</div>
+
+					<div class="container-login100-form-btn p-t-30">
+						<button class="login100-form-btn" type="submit">
+							Reset My Password
+						</button>
+					</div>
+					
+					<div class="w-full p-t-25 text-center">
+
+						<div>
+							<a href="/login" class="txt1">
+								Login?
+							</a>
+						</div>
+					</div>
+
+				</form>
+
+				<div class="login100-more" style="background-image: url('/source/light/assets/images/mapane1.png');">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Plugins Js -->
+	<script src="/source/light/assets/js/app.min.js"></script>
+	<!-- Extra page Js -->
+	<script src="/source/light/assets/js/pages/examples/pages.js"></script>
+</body>
+
+
+<!-- Mirrored from www.radixtouch.in/templates/admin/atrio/source/light/pages/examples/forgot-password.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 11 Feb 2019 01:24:56 GMT -->
+</html>

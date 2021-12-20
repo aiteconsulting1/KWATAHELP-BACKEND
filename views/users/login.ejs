@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="UTF-8">
+	<meta content="width=device-width, initial-scale=1" name="viewport" />
+	<title>Ndah - Login</title>
+	<!-- Favicon-->
+	<link rel="icon" href="/images/icon.png" type="image/x-icon">
+	<!-- Plugins Core Css -->
+	<link href="/source/light/assets/css/app.min.css" rel="stylesheet">
+	<!-- Custom Css -->
+	<link href="/source/light/assets/css/style.css" rel="stylesheet" />
+	<link href="/source/light/assets/css/pages/extra_pages.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<style>
+		.loginSubmit:hover{
+			cursor: pointer;
+			background: transparent !important;
+			color: black;
+		}
+		.loginCard button.dark {
+			border-color: #4068a3;
+			background: #4068a3;
+			box-shadow: 0 10px 30px 0px rgb(189 89 212 / 50%);
+			cursor: pointer;
+		}
+		.loginCard {
+			width: 70%;
+			margin: 10% auto;
+			background-image: url("/images/bg.png");
+			min-height: 400px;
+			position: relative;
+			box-shadow: 0 0 4px rgb(0 0 0 / 14%), 0 4px 8px rgb(0 0 0 / 28%);
+			background-repeat: no-repeat;
+			background-size: cover;
+			background-position-y: -2rem;
+		}
+		.addavis {
+			background-image: linear-gradient(to right, #212529, #212529, #03a9f3, #212529);
+			-webkit-box-shadow: 0 4px 15px 0 rgb(252 104 110 / 75%);
+			-moz-box-shadow: 0 4px 15px 0 rgba(252, 104, 110, 0.75);
+			-ms-box-shadow: 0 4px 15px 0 rgba(252, 104, 110, 0.75);
+			box-shadow: 0 0px 5px 0 #212529;
+		}
+	</style>
+</head>
+
+<body class="light">
+	<div class="loginmain">
+		<div class="loginCard">
+			<div class="login-btn splits">
+				<p>Already an user?</p>
+				<button class="active">Login</button>
+			</div>
+			<div class="rgstr-btn splits">
+				<!-- <p>Don't have an account?</p>
+				<button>Register</button> -->
+			</div>
+			<div class="wrapper">
+				<form id="login" tabindex="500" method="POST" action="login" style="margin-top: -30px;">
+					<img src="/images/logo.png" alt="" style="position: relative;bottom: .5rem; height:170px">
+					<h3>Connectez-vous</h3>
+					<div class="mail">
+						<input type="text" name="email">
+						<label>Email</label>
+					</div>
+					<div class="passwd">
+						<input type="password" name="password">
+						<label>Mot de passe</label>
+					</div>
+					
+					<div class="submit">
+						<button class="dark loginSubmit">Connexion</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="forgotPwd" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalCenterTitle">Mot de passe oublié</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form class="forgotpassword">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="form-group">
+									<label for="">Numéro de téléphone/Email *</label>
+									<input type="text" class="form-control emailforgot" placeholder="Entrer votre téléphone..." name="email">
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn-hover btn-border-radius addavis" data-dismiss="modal"
+						style="margin-top: 3px;">Fermer</button>
+					<button style="margin-top:0px;" class="btn-hover btn-border-radius color-5 forgot_pwd" attr-type="save">Envoyer</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Plugins Js -->
+	<script src="/source/light/assets/js/app.min.js"></script>
+	<script src="/source/light/assets/js/pages/examples/login-register.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="/js/vanilla-toast-main/lib/vanilla-toast.min.js"></script>
+	<script>
+        $('.loginSubmit').on('click', function(e){
+            e.preventDefault();
+            
+            $('.loginSubmit').prepend("<span class='spinner-grow spinner-grow-sm'></span>");
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('#login input[name="_token"]').val()
+                }
+            });
+            var email = $("#login input[name='email']").val();
+            var password = $("#login input[name='password']").val();
+			if(email == "" && password == ""){
+				$('.spinner-grow').remove();
+				swal(
+					'Erreur !',
+					'Veuillez remplir tous les champs.',
+					'error'
+				);
+			}else{
+				$.ajax({
+					url: 'login',
+					type: 'POST',
+					data: {
+						phone: email,
+						password: password
+					},
+					success: function(data) {
+						console.log(data);
+						if (data.success == "Login ok.") {
+							$('.spinner-grow').remove();
+							vt.success("Bienvenue !",{
+								title: undefined,
+								position: "top-center",
+								duration: 5000,
+								closable: true,
+								focusable: true, 
+								callback: undefined
+							});
+							setTimeout(function(){
+								window.location.href = "dashboard";
+							}, 1000);
+						}else if (data.error == "Identifiants invalides.") {
+							$('.spinner-grow').remove();
+							swal(
+								'Erreur !',
+								'Identifiants invalides.',
+								'error'
+							);
+
+						}else {
+							$('.spinner-grow').remove();
+							swal(
+								'Erreur !',
+								'Une erreur est survenue. Veuillez reesayer plutard.',
+								'error'
+							);
+						}
+					},
+					error: function() {
+						$('.spinner-grow').remove();
+							swal(
+								'Erreur !',
+								'Identifiants invalides.',
+								'error'
+							);
+					}
+				});
+			}
+        });
+        $('.forgot_pwd').on('click', function(e){
+            e.preventDefault();
+            
+            $('.forgot_pwd').prepend("<span class='spinner-grow spinner-grow-sm'></span>");
+            var email = $(".emailforgot").val();
+				$.ajax({
+					url: 'forgot-pwd',
+					type: 'POST',
+					data: {
+						email: email
+					},
+					success: function(data) {
+						console.log(data);
+						if (data.type == "success") {
+							$('.spinner-grow').remove();
+							vt.success(data.message,{
+								title: undefined,
+								position: "top-center",
+								duration: 5000,
+								closable: true,
+								focusable: true,
+								callback: undefined
+							});
+						}else if (data.type == "error") {
+							$('.spinner-grow').remove();
+							vt.error(data.message,{
+								title: "Erreur !",
+								position: "top-center",
+								duration: 5000,
+								closable: true,
+								focusable: true,
+								callback: undefined
+							});
+						}else {
+							$('.spinner-grow').remove();
+							vt.error("Une erreur est survenue, veuillez reessayer plutard !",{
+								title: "Erreur !",
+								position: "top-center",
+								duration: 5000,
+								closable: true,
+								focusable: true,
+								callback: undefined
+							});
+						}
+					}
+				});
+        });
+	</script>
+</body>
+
+</html>

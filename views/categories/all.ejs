@@ -1,0 +1,70 @@
+<%- include('../partials/header') -%> 
+<style>
+    .avatarimg{
+        border-radius: 50%;
+        width: 4rem;
+        height: 4rem;
+        object-fit: cover;
+    }
+</style>
+<section class="content">
+    <div class="container-fluid">
+        <!-- Exportable Table -->
+        <div class="row clearfix">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="card" style="margin-top: 4rem;">
+                    <div class="header">
+                        <h3 class="text-white mb-0" style="color: #000 !important;"><%= title %> </h3>
+                        <h5 style="margin-top: 1rem;"><%= data.length %> occurence(s)</h5>
+                        <div class="header-dropdown m-r--5">
+                            <% if(!parent_id){ %>
+                               <button style="margin-top:0px;" class="btn-hover btn-border-radius color-5" onclick="window.location='/dashboard/categories/add'">Ajouter</button>
+                            <% } %>
+                            <% if(parent_id){ %>
+                                <button style="margin-top:0px;" class="btn-hover btn-border-radius color-5" onclick="window.location='/dashboard/categories/add?parent_id=<%= parent_id %>'">Ajouter</button>
+                             <% } %>
+                        </div>
+                    </div>
+                    <div class="body">
+                        <div class="table-responsive">
+                            <table  id="tableExport" class="display table table-hover table-checkable order-column m-t-20 width-per-100" style="width: 100%">
+                                <thead>
+                                    <tr>
+                                       
+                                        <th>Nom</th>
+                                        <th style="text-align: end;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% data.forEach((item)=>{ %>
+                                    <tr>
+                                        <td >
+                                            <%= item.name %> &nbsp;&nbsp;
+                                         
+                                        </td>
+                                        
+                                        <td style="text-align: end;">
+                                                <a href="/dashboard/categories/?parent_id=<%= item._id %>" class="btn-hover btn-border-radius color-4 p-1"><i class="fa fa-eye"></i>  Voir les sous catégories</a>
+
+                                        
+                                            <a href="/dashboard/categories/<%= item.id %>/edit" class="btn btn-tbl-edit" title="Modifier">
+                                                <i class="material-icons">create</i>
+                                            </a>
+                                            <a href="/dashboard/category-delete/<%= item.id %>" class="btn btn-tbl-edit btn-danger delete" title="Supprimer">
+                                                <i class="material-icons">delete_sweep</i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <% }) %> 
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- #END# Exportable Table -->
+    </div>
+</section>
+
+<%- include('../partials/footer') -%> 

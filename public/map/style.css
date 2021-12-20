@@ -1,0 +1,149 @@
+
+
+.item{
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: box-shadow .3s;
+    padding: 0 20px;
+}
+
+.item:hover{
+    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+    background-color: #fff;
+}
+
+.item h4{
+    margin: 1rem 0 0.5rem 0;
+}
+
+.item p{
+    margin: 0 0 1rem 0;
+}
+
+.item img{
+    width: calc(100% + 40px);
+    margin-left: -5px;
+    display: block;
+}
+
+.containere{
+    display: grid;
+    grid-template-columns: 7fr 4fr;
+}
+
+.liste{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-column-gap: 30px;
+    padding: 0 30px;
+}
+
+.map{
+    background-color: #cccccc;
+    position: sticky !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+}
+
+.marker.leaflet-popup{
+    margin-bottom: 16px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 5px 10px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    background-color: #fff;
+
+}
+
+.marker.leaflet-popup::after{
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    margin-left: -8px;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #fff;
+}
+
+.marker .leaflet-popup-content-wrapper{
+    background: transparent;
+    color: inherit;
+    box-shadow: none;
+    text-align: inherit;
+}
+
+.marker .leaflet-popup-content{
+    text-align: inherit;
+    color: inherit;
+    margin: 0;
+}
+
+.marker .leaflet-popup-tip-container{
+    display: none;
+}
+
+.marker.is-active, .marker:hover {
+    z-index: 300;
+    background-color: #5069ff;
+    color: #fff;
+}
+
+.marker.is-active::after, .marker:hover:after{
+    border-top-color: #5069ff;
+}
+
+.marker.is-expended {
+    background-color: #fff !important;
+    color: inherit !important;
+    z-index: 301;
+    text-align: left;
+}
+
+.marker.is-expended::after{
+    border-top-color: #fff !important;
+}
+
+
+
+/*new styles */
+
+#map .same-card{
+    box-shadow: none;
+    border-bottom: none;
+    margin-bottom: 10px;
+    font-family: "Poppins",sans-serif;
+}
+
+#map .same-card .progress-description > span{
+    display: block;
+    font-size: 10px;
+    line-height: 15px;
+    margin-bottom: 2px;
+}
+
+#map .marker .leaflet-popup-content{
+    width: 224px;
+    font-weight: 200;
+    border-radius: 25px;
+}
+
+#map .marker.is-expended{
+    border-radius: 25px;
+    padding: 0;
+}
+#map .marker .info-box-text{
+    font-weight: 300;
+    font-family: "Poppins",sans-serif;
+    font-size: 13px;
+}
+
+#map .marker .contain-progress-desc{
+   margin-top: 10px; 
+}

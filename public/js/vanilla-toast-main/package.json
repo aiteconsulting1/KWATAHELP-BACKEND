@@ -1,0 +1,29 @@
+{
+  "name": "vanilla-toast",
+  "version": "1.0.0",
+  "description": "Pure Javascript Toast Alert Message",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src -d lib --out-file-extension .min.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mehmetemineker/vanilla-toast.git"
+  },
+  "author": "Mehmet Emin Eker",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mehmetemineker/vanilla-toast/issues"
+  },
+  "homepage": "https://github.com/mehmetemineker/vanilla-toast#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.12.8",
+    "@babel/core": "^7.12.9",
+    "@babel/preset-env": "^7.12.7",
+    "babel-preset-minify": "^0.5.1"
+  },
+  "dependencies": {
+    "@webcomponents/webcomponentsjs": "^2.5.0"
+  }
+}

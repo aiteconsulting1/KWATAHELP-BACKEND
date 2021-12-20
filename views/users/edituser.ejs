@@ -1,0 +1,115 @@
+<%-include('../partials/header')-%> 
+<style>
+    input[type=text], input[type=email]{
+      border: 1px solid #0f3042 !important;
+      border-radius: 5px !important;
+      background: transparent !important;
+      padding: 0px 7px !important;
+    }
+    input[type=text]:focus, input[type=email]:focus{
+      border: 1px solid #78ae61 !important;
+      -webkit-box-shadow: 0 1px 0 0 #78ae61 !important;
+      box-shadow: 0 1px 0 0 #78ae61 !important;
+    }
+    .form-group .form-control{
+        width: 97% !important;
+    }
+    .eleve_form, .ecole_form{
+        display: none;
+        margin-top: 1rem;
+    }
+    .usertype_selector h3{
+        text-align: center;
+    }
+    .usertype_selector{
+        border: 1px #4169a3 solid;
+        color: black;
+        width: 48%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        border-radius: 15px;
+    }
+    .usertype_selector.active{
+        border: 1px #4169a3 solid;
+        color: white;
+        background-color: #4169a3;
+        width: 48%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        border-radius: 15px;
+    }
+    .usertype_selector:hover{
+        border: 1px #4169a3 solid;
+        color: white;
+        background-color: #4169a3;
+        -webkit-transition: background-color 400ms linear;
+        -ms-transition: background-color 400ms linear;
+        transition: background-color 400ms linear;
+        width: 48%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        border-radius: 15px;
+        cursor: pointer;
+    }
+    .divselectorentoure{
+        padding: 1rem;
+    }
+    .addinguser hr{
+        width: 100%;
+        margin-bottom: 2rem;
+        border-top: 2px solid rgb(64 104 163);
+    }
+</style>
+<section class="content addinguser">
+    <div class="container-fluid">
+        <div class="content" style="padding-top:30px;">
+            <div class="container-fluid">
+                <div class="row clearfix">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="card">
+                            <div class="header">
+                                <h2>
+                                    <strong>Modifier</strong> un utilisateur
+                                </h2>
+                            </div>
+                            <div class="body">
+                                <div class="row divselectorentoure">
+                                    <% if(user.type === 'Ecole'){ %>
+                                        <div class="usertype_selector ecole_selector active" attr-val="ecole" style="width: 100%;">
+                                            <h3><i class="material-icons pull-left">account_balance</i> &nbsp;&nbsp;&nbsp; Ecole</h3>
+                                        </div>
+                                    <% } %>
+                                    <% if(user.type === 'Etudiant'){ %>
+                                        <div class="usertype_selector eleve_selector active" attr-val="eleve" style="width: 100%;">
+                                            <h3><i class="material-icons pull-left">person</i> &nbsp;&nbsp;&nbsp; Etudiant</h3>
+                                        </div>
+                                    <% } %>
+                                </div>
+                                <% if(user.type === 'Etudiant'){ %>
+                                    <div class="eleve_form" style="display: <%= user.type === 'Etudiant' ? 'block' : 'none' %>;">
+                                        <%-include('../partials/eleve_form_edit',{user:user, typereq:typereq})-%> 
+                                    </div>
+                                <% } %>
+                                <% if(user.type === 'Ecole'){ %>
+                                    <div class="ecole_form" style="display: <%= user.type === 'Ecole' ? 'block' : 'none' %>;">
+                                        <%-include('../partials/ecole_form_edit',{user:user, typereq:typereq})-%> 
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<%-include('../partials/footer')-%> 
+
+
+
