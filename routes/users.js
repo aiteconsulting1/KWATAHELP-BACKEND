@@ -15,6 +15,7 @@ const {
   smtpTransport,
   replaceAll,
   isAuthenticatedUser,
+  sendSms,
 } = require("../helpers/utils");
 const { SMS_LINK } = require("../config/keys");
 const axios = require("axios");
@@ -469,19 +470,24 @@ router.post("/signup", (req, res, next) => {
         console.log('User created ', SMS_LINK, user.phone.split("+")[1], fields)
         // if (fields.send_sms == "yes") {
           console.log('send_sms try => ', user.phone)
-          axios
-            .get(
-              SMS_LINK +
-                "&destination=" +
-                user.phone.split("+")[1] +
-                "&message=Votre code de validation est " +
-                user.code
-            )
-            .then(function (response) {
-              console.log('success sms =>', response);
-            })
-            .catch((err) => console.log('Failed sms =>', err));
+          const msg_sms = `Votre code de validation est ${user.code}`
+          // axios
+          //   .get(
+          //     SMS_LINK +
+          //       "&destination=" +
+          //       user.phone.split("+")[1] +
+          //       "&message=Votre code de validation est " +
+          //       user.code
+          //   )
+          //   .then(function (response) {
+          //     console.log('success sms =>', response);
+          //   })
+          //   .catch((err) => console.log('Failed sms =>', err));
         // }
+
+        // Envoi SMS ici..
+        sendSms(user.phone, msg_sms)
+        // Fin envoi SMS..
         return res.status(200).json({
           type: "success",
           message: "Compte créé avec succès !",
