@@ -62,7 +62,7 @@
 					<h3>Connectez-vous</h3>
 					<div class="mail">
 						<input type="text" name="email">
-						<label>Email</label>
+						<label>Phone/Email</label>
 					</div>
 					<div class="passwd">
 						<input type="password" name="password">
@@ -126,6 +126,7 @@
             });
             var email = $("#login input[name='email']").val();
             var password = $("#login input[name='password']").val();
+			console.log('FETT', email, password)
 			if(email == "" && password == ""){
 				$('.spinner-grow').remove();
 				swal(
@@ -142,7 +143,7 @@
 						password: password
 					},
 					success: function(data) {
-						console.log(data);
+						// console.log('Successs ', data);
 						if (data.success == "Login ok.") {
 							$('.spinner-grow').remove();
 							vt.success("Bienvenue !",{
@@ -173,11 +174,12 @@
 							);
 						}
 					},
-					error: function() {
+					error: function(err) {
+						// console.log('ERROROR', err)
 						$('.spinner-grow').remove();
 							swal(
 								'Erreur !',
-								'Identifiants invalides.',
+								'Identifiants invalides!',
 								'error'
 							);
 					}

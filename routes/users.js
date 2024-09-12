@@ -366,20 +366,23 @@ router.post(
   })
 );
 router.get("/successjson", function (req, res) {
+  console.log('successjson', req.body)
   res.status(200).json({ success: "Login ok.", user: req.user });
 });
 
 router.get("/failurejson", function (req, res) {
+  console.log('failurejson', req.body)
   res.status(401).json({ error: "Identifiants invalides." });
 });
 
 //api auth
 router.post("/api/login", function (req, res, next) {
+  console.log('ICICC ', req.body)
   var langue = req.body.lang;
   console.log(req.body.phone);
 
   passport.authenticate("local", function (err, user, info) {
-    console.log(user);
+    console.log('fet => ', user);
     if (err) {
       return next(err);
     }
@@ -463,19 +466,21 @@ router.post("/signup", (req, res, next) => {
           return res.status(400).json({ type: "error", message: message });
         }
         user.setPassword(fields.password);
+        console.log('User created ', SMS_LINK, user.phone.split("+")[1], fields)
         // if (fields.send_sms == "yes") {
-        //   axios
-        //     .get(
-        //       SMS_LINK +
-        //         "&destination=" +
-        //         user.phone.split("+")[1] +
-        //         "&message=Votre code de validation est " +
-        //         user.code
-        //     )
-        //     .then(function (response) {
-        //       console.log(response);
-        //     })
-        //     .catch((err) => console.log(err));
+          console.log('send_sms try => ', user.phone)
+          axios
+            .get(
+              SMS_LINK +
+                "&destination=" +
+                user.phone.split("+")[1] +
+                "&message=Votre code de validation est " +
+                user.code
+            )
+            .then(function (response) {
+              console.log('success sms =>', response);
+            })
+            .catch((err) => console.log('Failed sms =>', err));
         // }
         return res.status(200).json({
           type: "success",
