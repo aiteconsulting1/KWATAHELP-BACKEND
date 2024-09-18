@@ -82,7 +82,7 @@
 
                                 <div class="ecole_for active">
                                     <form class="location" enctype="multipart/form-data" method="post" action="/dashboard/locations">
-                                        <input type="hidden" class="data_id" name="id" value="<%= data?._id||'no' %>">
+                                        <input type="hidden" class="data_id" name="id" value="<%= data ? data._id:'no' %>">
                                         <% if(!data){ %>
                                             <input type="hidden" name="idPays" value="<%= id_pays %>">
                                             <input type="hidden" name="idRegion" value="<%= id_region %>">
@@ -95,13 +95,13 @@
                                                 <div class="col-md-3">
                                                     <div class="form-group">
                                                         <label for="">Code du pays *</label>
-                                                        <input type="text" required class="form-control value" maxlength="3" placeholder="Code ex: CM" name="code" value="<%= data?.code %>">
+                                                        <input type="text" required class="form-control value" maxlength="3" placeholder="Code ex: CM" name="code" value="<%= data && data.code %>">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-9">
                                                     <div class="form-group">
                                                         <label for="">Nom *</label>
-                                                        <input type="text" required class="form-control value" placeholder="Nom" name="name" value="<%= data?.name %>">
+                                                        <input type="text" required class="form-control value" placeholder="Nom" name="name" value="<%= data && data.name %>">
                                                     </div>
                                                 </div>
                                             <% } %>
@@ -109,7 +109,7 @@
                                                 <div class="col-md-12">
                                                     <div class="form-group">
                                                         <label for="">Nom *</label>
-                                                        <input type="text"  required class="form-control value" placeholder="Nom" name="name" value="<%= data?.name %>">
+                                                        <input type="text"  required class="form-control value" placeholder="Nom" name="name" value="<%= data && data.name %>">
                                                     </div>
                                                 </div>
                                             <% } %>

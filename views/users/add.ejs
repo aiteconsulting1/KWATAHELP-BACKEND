@@ -80,14 +80,14 @@
                             </div>
                             <div class="body">
                                 <form class="ecoleformulairesave" enctype="multipart/form-data">
-                                    <input type="hidden" name="id_user" value="<%= user?._id||'no' %>">
+                                    <input type="hidden" name="id_user" value="<%= user ? user._id:'no' %>">
                                     <input type="hidden" value="<%= type %>" name="type">
                                     <div class="row">
                                         
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label for="">Nom et prénom *</label>
-                                                <input type="text" required class="form-control" value="<%= user?.name %>" placeholder="Nom et prenom" name="name">
+                                                <input type="text" required class="form-control" value="<%= user && user.name %>" placeholder="Nom et prenom" name="name">
                                             </div>
                                         </div>
                                         <!-- <div class="col-md-6">
@@ -100,7 +100,7 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="">Téléphone *</label>
-                                                <input type="text" name="unformatedPhone" value="<%= user?.unformatedPhone %>"  class="form-control zcode30" required placeholder="Téléphone" data-intl-tel-input-id="0">
+                                                <input type="text" name="unformatedPhone" value="<%= user && user.unformatedPhone %>"  class="form-control zcode30" required placeholder="Téléphone" data-intl-tel-input-id="0">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
@@ -113,7 +113,7 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="">Quartier *</label>
-                                                <select name="idQuartier" required aria-placeholder="Quartier" class="selectpicker" data-default="<%= user?.idQuartier %>"  data-flag="true">
+                                                <select name="idQuartier" required aria-placeholder="Quartier" class="selectpicker" data-default="<%= user && user.idQuartier %>"  data-flag="true">
                                                     <% quartiers.forEach((item)=>{ %>
                                                     <option value="<%= item._id %>" ><%= item.name %></option>
                                                     <% }) %>

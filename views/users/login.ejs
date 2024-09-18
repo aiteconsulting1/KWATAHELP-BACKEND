@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta content="width=device-width, initial-scale=1" name="viewport" />
-	<title>Ndah - Login</title>
+	<title>Kwatahelp - Login</title>
 	<!-- Favicon-->
 	<link rel="icon" href="/images/icon.png" type="image/x-icon">
 	<!-- Plugins Core Css -->
@@ -62,7 +62,7 @@
 					<h3>Connectez-vous</h3>
 					<div class="mail">
 						<input type="text" name="email">
-						<label>Phone/Email</label>
+						<label>Numéro de téléphone/Email *</label>
 					</div>
 					<div class="passwd">
 						<input type="password" name="password">
@@ -126,7 +126,6 @@
             });
             var email = $("#login input[name='email']").val();
             var password = $("#login input[name='password']").val();
-			console.log('FETT', email, password)
 			if(email == "" && password == ""){
 				$('.spinner-grow').remove();
 				swal(
@@ -135,6 +134,7 @@
 					'error'
 				);
 			}else{
+				console.log('les voila => ', email, password)
 				$.ajax({
 					url: 'login',
 					type: 'POST',
@@ -143,7 +143,6 @@
 						password: password
 					},
 					success: function(data) {
-						// console.log('Successs ', data);
 						if (data.success == "Login ok.") {
 							$('.spinner-grow').remove();
 							vt.success("Bienvenue !",{
@@ -153,10 +152,11 @@
 								closable: true,
 								focusable: true, 
 								callback: undefined
-							});
+							})
 							setTimeout(function(){
 								window.location.href = "dashboard";
-							}, 1000);
+							}, 1000)
+
 						}else if (data.error == "Identifiants invalides.") {
 							$('.spinner-grow').remove();
 							swal(
@@ -175,11 +175,10 @@
 						}
 					},
 					error: function(err) {
-						// console.log('ERROROR', err)
 						$('.spinner-grow').remove();
 							swal(
 								'Erreur !',
-								'Identifiants invalides!',
+								'Identifiants invalides.!!!!',
 								'error'
 							);
 					}

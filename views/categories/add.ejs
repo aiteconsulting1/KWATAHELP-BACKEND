@@ -82,19 +82,30 @@
 
                                 <div class="ecole_for active">
                                     <form class="location" enctype="multipart/form-data" method="post" action="/dashboard/categories">
-                                        <input type="hidden" class="data_id" name="id" value="<%= data?._id||'no' %>">
+                                        <input type="hidden" class="data_id" name="id" value="<%= data ? data._id:'no' %>">
                                         <% if(parent_id){ %>
                                             <input type="hidden" name="parentId" value="<%= parent_id %>">
                                         <% } %>
 
                                         <div class="row">
-                                            
-                                                <div class="col-md-12">
-                                                    <div class="form-group">
-                                                        <label for="">Nom de la catégorie*</label>
-                                                        <input type="text"  required class="form-control value" placeholder="Nom" name="name" value="<%= data?.name %>">
-                                                    </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label for="">Icône</label>
+                                                    <input type="file" class="form-control" name="image">
                                                 </div>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <div class="form-group">
+                                                    <label for="">Nom de la catégorie en français*</label>
+                                                    <input type="text"  required class="form-control value" placeholder="Nom" name="name" value="<%= data && data.name %>">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <div class="form-group">
+                                                    <label for="">Nom de la catégorie en anglais*</label>
+                                                    <input type="text"  required class="form-control value" placeholder="Nom" name="name_en" value="<%= data && data.name_en %>">
+                                                </div>
+                                            </div>
                                            
                                             <div class="col-md-12" style="display: flex;justify-content: center;">
                                                 <button class="btn-hover btn-border-radius color-7 submit_location" type="submit" attr-type="save">Sauvegarder</button>

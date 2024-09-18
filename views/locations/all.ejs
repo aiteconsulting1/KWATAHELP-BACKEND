@@ -57,13 +57,13 @@
                                         <td style="text-align: end;">
                                            <% if(next!=''){ %>
                                             <% if(type=='pays'){ %>
-                                               <a href="/dashboard/locations/<%= next %>?id_pays=<%= item._id %>" class="btn-hover btn-border-radius color-4 p-1"><i class="fa fa-eye"></i>  <%= next_title %></a>
+                                               <a href="/dashboard/locations/<%= next %>?id_pays=<%= item._id %>" class="btn-hover btn-border-radius color-4 p-10"><i class="fa fa-eye"></i>  <%= next_title %></a>
                                             <% } %>
                                             <% if(type=='region'){ %>
-                                                <a href="/dashboard/locations/<%= next %>?id_pays=<%= item.idPays %>&id_region=<%= item._id %>" class="btn-hover btn-border-radius color-4 p-1"><i class="fa fa-eye"></i>  <%= next_title %></a>
+                                                <a href="/dashboard/locations/<%= next %>?id_pays=<%= item.idPays %>&id_region=<%= item._id %>" class="btn-hover btn-border-radius color-4 p-10"><i class="fa fa-eye"></i>  <%= next_title %></a>
                                              <% } %>
                                              <% if(type=='ville'){ %>
-                                                <a href="/dashboard/locations/<%= next %>?id_pays=<%= item.idPays %>&id_region=<%= item.idRegion %>&id_ville=<%= item._id %>" class="btn-hover btn-border-radius color-4 p-1"><i class="fa fa-eye"></i>  <%= next_title %></a>
+                                                <a href="/dashboard/locations/<%= next %>?id_pays=<%= item.idPays %>&id_region=<%= item.idRegion %>&id_ville=<%= item._id %>" class="btn-hover btn-border-radius color-4 p-10"><i class="fa fa-eye"></i>  <%= next_title %></a>
                                              <% } %>
                                            <% } %>
                                         

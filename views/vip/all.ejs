@@ -1,0 +1,65 @@
+<%- include('../partials/header') -%> 
+<style>
+    .avatarimg{
+        border-radius: 50%;
+        width: 4rem;
+        height: 4rem;
+        object-fit: cover;
+    }
+</style>
+<section class="content">
+    <div class="container-fluid">
+        <!-- Exportable Table -->
+        <div class="row clearfix">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="card" style="margin-top: 4rem;">
+                    <div class="header">
+                        <h3 class="text-white mb-0" style="color: #000 !important;"><%= title %> </h3>
+                        <h5 style="margin-top: 1rem;"><%= data.length %> occurence(s)</h5>
+                        <!-- <div class="header-dropdown m-r--5">
+                               <button style="margin-top:0px;" class="btn-hover btn-border-radius color-5" onclick="window.location='/dashboard/publicites/add'">Ajouter</button>
+                    
+                        </div> -->
+                    </div>
+                    <div class="body">
+                        <div class="table-responsive">
+                            <table  id="tableExport" class="display table table-hover table-checkable order-column m-t-20 width-per-100" style="width: 100%">
+                                <thead>
+                                    <tr>
+                                        <th>Avatar</th>
+                                        <th>Nom et prénom</th>
+                                        <th>Téléphone</th>
+                                        <th>Adresse</th>
+                                        <th>Date de l'abonement</th>
+                                        <th>Plan d'abonement</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% data.forEach((user)=>{ %>
+                                    <tr>
+                                        <td>
+                                            <img width="25" src="<%= user.image %>" alt="<%= user.name %>" class="avatarimg">
+                                        </td>
+                                        <td>
+                                            <%= user.name %> &nbsp;&nbsp;
+                                         
+                                        </td>
+                                        <td><%= user.phone %></td>
+                                        <td><%= user.idQuartier.name %>, <%= user.idQuartier.idVille.name %>, <%= user.idQuartier.idVille.idRegion.name %>, <%= user.idQuartier.idVille.idRegion.idPays.name %></td>
+                                        
+                                        <td><%= user &&  new Date(user.createdAt).toLocaleDateString() %></td>
+                                        <td><%= user.plan && user.plan.name %></td>
+                                    </tr>
+                                    <% }) %> 
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- #END# Exportable Table -->
+    </div>
+</section>
+
+<%- include('../partials/footer') -%> 

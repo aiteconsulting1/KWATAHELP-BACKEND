@@ -1,18 +1,12 @@
 const express = require("express");
 const router = express.Router();
 //Requiring user model
-const User = require("../models/userModel");
 const Category = require("../models/category");
-const Ville = require("../models/ville");
-const Region = require("../models/region");
-const Quartier = require("../models/quartier");
 
 const formidable = require("formidable");
-var fs = require("fs");
 const {
-  smtpTransport,
-  replaceAll,
   isAuthenticatedUser,
+  uploadFileWithFormidable,
 } = require("../helpers/utils");
 
 router.get("/dashboard/categories/", isAuthenticatedUser, (req, res) => {
@@ -36,7 +30,6 @@ router.get("/dashboard/categories/", isAuthenticatedUser, (req, res) => {
   } else {
     Category.find()
       .then((data) => {
-          console.log(data)
         res.render("./categories/all", {
           data: data.filter((item) => !item.parentId),
           title: "Liste des catégories",
@@ -101,8 +94,10 @@ router.post("/dashboard/categories", isAuthenticatedUser, (req, res) => {
       next(err);
       return;
     }
-    console.log(fields);
-
+    if (files && files.image && files.image.name) {
+      const url = uploadFileWithFormidable(files.image, "public/images/");
+      if (url) fields.image = url.split("public")[1];
+    }
     if (fields.id == "no" || !fields.id) {
       Category.create(fields, (err, logement) => {
         if (err) {
@@ -142,6 +137,17 @@ router.get("/dashboard/category-delete/:id", (req, res) => {
   Category.deleteOne(searchQuery)
     .then((lang) => {
       return res.status(200).json({ message: "Supprimer " });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(400).json({ message: "Erreur " + err });
+    });
+});
+router.get("/api/categories", (req, res) => {
+  Category.find()
+    .sort({ name: 1 })
+    .then((data) => {
+      return res.status(200).json({ data });
     })
     .catch((err) => {
       console.log(err);

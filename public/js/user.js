@@ -160,7 +160,7 @@ $(document).ready(function () {
                 focusable: true,
                 callback: undefined
             });
-            if($(".data_id").val()=="no")
+            if($(".data_id").val()=="no" && !save_btn.attr("attr-refresh"))
               $(".value").val("")
             else{
             setTimeout(()=>{
@@ -189,7 +189,7 @@ $('.delete').on('click', function (e) {
   var self = $(this);
   var url = $(this).attr('href');
   swal({
-      title: "Etes-vous sûr de vouloir supprimer?",
+      title: "Etes-vous sûr de vouloir éffectué cette action?",
       text: "Cette action est irreversible.",
       icon: "warning",
       buttons: true

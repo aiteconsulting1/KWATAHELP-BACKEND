@@ -1,0 +1,130 @@
+<%-include('../partials/header')-%> 
+<style>
+    input[type=text], input[type=email]{
+      border: 1px solid #0f3042 !important;
+      border-radius: 5px !important;
+      background: transparent !important;
+      padding: 0px 7px !important;
+    }
+    input[type=text]:focus, input[type=email]:focus{
+      border: 1px solid #78ae61 !important;
+      -webkit-box-shadow: 0 1px 0 0 #78ae61 !important;
+      box-shadow: 0 1px 0 0 #78ae61 !important;
+    }
+    .form-group .form-control{
+        width: 97% !important;
+    }
+    .eleve_form, .ecole_form{
+        display: none;
+        margin-top: 1rem;
+    }
+    .logementtype_selector h3{
+        text-align: center;
+    }
+    .logementtype_selector{
+        border: 1px #4169a3 solid;
+        color: black;
+        width: 48%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        border-radius: 15px;
+    }
+    .logementtype_selector.active{
+        border: 1px #4169a3 solid;
+        color: white;
+        background-color: #4169a3;
+        width: 48%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        border-radius: 15px;
+    }
+    .logementtype_selector:hover{
+        border: 1px #4169a3 solid;
+        color: white;
+        background-color: #4169a3;
+        -webkit-transition: background-color 400ms linear;
+        -ms-transition: background-color 400ms linear;
+        transition: background-color 400ms linear;
+        width: 48%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        border-radius: 15px;
+        cursor: pointer;
+    }
+    .divselectorentoure{
+        padding: 1rem;
+    }
+    .addinglogement hr{
+        width: 100%;
+        margin-bottom: 2rem;
+        border-top: 2px solid rgb(64 104 163);
+    }
+</style>
+<section class="content addinglogement">
+    <div class="container-fluid">
+        <div class="content" style="padding-top:30px;">
+            <div class="container-fluid">
+                <div class="row clearfix">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="card">
+                            <div class="header">
+                                <h2>
+                                    <%= page %>
+                                </h2>
+                            </div>
+                            <div class="body">
+
+                                <div class="ecole_for active">
+                                    <form class="location" enctype="multipart/form-data" method="post" action="/dashboard/helps">
+                                        <input type="hidden" class="data_id" name="id" value="<%= data ? data._id:'no' %>">
+                                      
+
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="">Page</label>
+                                                    <select name="type" required aria-placeholder="Prestataire associé" class="selectpicker"   data-flag="true">
+                                                        <option value="kwatajob"  <% if( data && data.type === "kwatajob"){ %> selected <% } %> >Kwata Job </option>
+                                                        <option value="kwatapromo"  <% if( data && data.type === "kwatapromo"){ %> selected <% } %> >Kwata Promo </option>
+                                                        <option value="kwatachat"  <% if( data && data.type === "kwatachat"){ %> selected <% } %> >Kwata Tchat </option>
+                                                        <option value="kwatashop"  <% if( data && data.type === "kwatashop"){ %> selected <% } %> >Kwata Shop </option>
+                                                        <option value="infolocale"  <% if( data && data.type === "infolocale"){ %> selected <% } %> >Infos Locales </option>
+                                                        <option value="vip"  <% if( data && data.type === "vip"){ %> selected <% } %> >VIP </option>
+     
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="">Message en français*</label>
+                                                    <textarea required class="form-control" name="description"><%= data && data.description %></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="">Message en anglais*</label>
+                                                    <textarea required class="form-control" name="description_en"><%= data && data.description_en %></textarea>
+                                                </div>
+                                            </div>
+                                           
+                                            <div class="col-md-12" style="display: flex;justify-content: center;">
+                                                <button class="btn-hover btn-border-radius color-7 submit_location" type="submit" attr-type="save">Sauvegarder</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<%-include('../partials/footer')-%> 

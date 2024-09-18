@@ -5,7 +5,7 @@
 	<script src="/js/ckeditor/adapters/jquery.js"></script>
     <script>
     $(window).on('load', function(e){
-  
+       
         e.preventDefault();
             $.ajax({
                 url: '/dashboard/notifications',
@@ -44,8 +44,13 @@
     <script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
     <script src="/js/intl-tel-input-17.0.0/build/js/intlTelInput.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
-  
+// In your Javascript (external .js resource or <script> tag)
+    $(document).ready(function() {
+        $('.select2').select2();
+    });
         const socket = io("http://localhost:6001");
         socket.emit('login',{userId:'<%= user_admin_id %>'});
         socket.on("new_message", (arg) => {

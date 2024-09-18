@@ -1,0 +1,88 @@
+<%- include('../partials/header') -%> 
+<style>
+    .avatarimg{
+        border-radius: 50%;
+        width: 4rem;
+        height: 4rem;
+        object-fit: cover;
+    }
+</style>
+<section class="content">
+    <div class="container-fluid">
+        <!-- Exportable Table -->
+        <div class="row clearfix">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="card" style="margin-top: 4rem;">
+                    <div class="header">
+                        <h3 class="text-white mb-0" style="color: #000 !important;"><%= title %> </h3>
+                        <h5 style="margin-top: 1rem;"><%= data.length %> occurence(s)</h5>
+                        <div class="header-dropdown m-r--5">
+                               <button style="margin-top:0px;" class="btn-hover btn-border-radius color-5" onclick="window.location='/dashboard/publicites/add'">Ajouter</button>
+                    
+                        </div>
+                    </div>
+                    <div class="body">
+                        <div class="table-responsive">
+                            <table  id="tableExport" class="display table table-hover table-checkable order-column m-t-20 width-per-100" style="width: 100%">
+                                <thead>
+                                    <tr>
+                                      <th>Nom</th>
+                                        <th>Image</th>
+                                        <th>Description</th>
+                                        <th>Prestataire</th>
+                                        <th>Nombre de personne à touché</th>
+                                        <th>Satatut du paiement</th>
+                                        <th style="text-align: end;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% data.forEach((item)=>{ %>
+                                    <tr>
+                                        <td><%= item.name %></td>
+                                        <td>
+                                            <img width="25" src="<%= item.image %>" alt=" " class="avatarimg">
+                                        </td>
+                                        <td >
+                                        <%= item.description %> &nbsp;&nbsp;
+                                        </td>
+                                        <td><%= item.provider && item.provider.name + " ("+ item.provider.phone + ")" %></td>
+                                        <td >
+                                            <%= item.number_user %>
+                                            </td>
+                                        <td style="text-align: center;">
+                                            <% if(item.is_pay){ %>
+                                               <a href="#" class="text-success"><i class="fa fa-check"></i> Payé</a>
+                                            <% } %>
+                                            <% if(!item.is_pay){ %>
+                                                <a href="#" class="text-danger"><i class="fa fa-times"></i> Impayé</a>
+                                             <% } %>
+                                          
+                                        </td>
+                                        <td style="text-align: end;" width="220px">
+                                            <% if(item.status==0){ %>
+                                               <a href="/dashboard/publicites/active/<%= item._id %>/1" class="btn-hover btn-border-radius color-4 p-10 btn-primary delete" ><i class="fa fa-check"></i> Activer</a>
+                                            <% } %>
+                                            <% if(item.status==1){ %>
+                                                <a href="/dashboard/publicites/active/<%= item._id %>/0" class="btn-hover btn-border-radius color-4 p-10 delete m-10"><i class="fa fa-times"></i> Désactiver</a>
+                                             <% } %>
+                                            <a href="/dashboard/publicites/<%= item.id %>/edit" class="btn btn-tbl-edit m-10" title="Modifier" >
+                                                <i class="material-icons">create</i>
+                                            </a>
+                                            <a href="/api/publicite-delete/<%= item.id %>" class="btn btn-tbl-edit btn-danger delete m-10" title="Supprimer">
+                                                <i class="material-icons">delete_sweep</i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <% }) %> 
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- #END# Exportable Table -->
+    </div>
+</section>
+
+<%- include('../partials/footer') -%> 

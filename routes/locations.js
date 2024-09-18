@@ -233,7 +233,6 @@ router.post("/dashboard/locations", isAuthenticatedUser, (req, res) => {
       next(err);
       return;
     }
-    console.log(fields);
 
     if (fields.id == "no" || !fields.id) {
       if (fields.type == "pays") {
@@ -402,5 +401,44 @@ router.get("/dashboard/location-delete/:type/:id", (req, res) => {
         return res.status(400).json({ message: "Erreur " + err });
       });
   }
+});
+
+router.get("/api/countries", (req, res) => {
+  Pays.find()
+    .sort({ createdAt: -1 })
+    .then((data) => {
+      res.status(200).json({
+        data,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
+router.get("/api/cities/:country_id", (req, res) => {
+  Ville.find({idPays: req.params.country_id})
+    .sort({ name: 1 })
+    .then((data) => {
+      res.status(200).json({
+        data,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
+router.get("/api/quartiers/:city_id", (req, res) => {
+  Quartier.find({idVille: req.params.city_id})
+    .sort({ name: 1 })
+    .then((data) => {
+      res.status(200).json({
+        data,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 });
 module.exports = router;

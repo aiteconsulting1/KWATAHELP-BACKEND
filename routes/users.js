@@ -1,27 +1,32 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-const LocalStrategy = require("passport-local").Strategy;
-const crypto = require("crypto");
-const async = require("async");
-const nodemailer = require("nodemailer");
 const formidable = require("formidable");
-var fs = require("fs");
-var ejs = require("ejs");
 //Requiring user model
 const User = require("../models/userModel");
 const Quartier = require("../models/quartier");
+const Product = require("../models/product");
+const Publicite = require("../models/publicite");
+const ProductOffer = require("../models/productOffer");
+const Vip = require("../models/vip");
+const Review = require("../models/review");
+const readXlsxFile = require("read-excel-file/node");
+const Pays = require("../models/paysModel");
+const Ville = require("../models/ville");
+const Region = require("../models/region");
+const Category = require("../models/category");
+const mongoose = require("mongoose");
+
 const {
-  smtpTransport,
-  replaceAll,
   isAuthenticatedUser,
+  uploadFileWithFormidable,
+  formatPhone,
+  sendNotification,
   sendSms,
 } = require("../helpers/utils");
-const { SMS_LINK } = require("../config/keys");
-const axios = require("axios");
 
 //Get routes
-router.get("/", (req, res) => {
+router.get("/login", (req, res) => {
   User.findOne({ type: "admin" })
     .then((users) => {
       if (users) {
@@ -49,13 +54,8 @@ router.get("/", (req, res) => {
       console.log(err);
     });
 });
-router.get("/login", (req, res) => {
-  var jan312009 = new Date();
-  var oneMonthFromJan312009 = new Date(
-    new Date(jan312009).setMonth(jan312009.getMonth() + 1)
-  );
-  console.log(oneMonthFromJan312009);
-  res.render("./users/login");
+router.get("/", (req, res) => {
+  res.render("./landing/index");
 });
 
 router.get("/dashboard/users/add/:type", isAuthenticatedUser, (req, res) => {
@@ -66,10 +66,22 @@ router.get("/dashboard/users/add/:type", isAuthenticatedUser, (req, res) => {
   if (req.params.type == "agent") title = "Ajouter un agent de rue";
   if (req.params.type == "region_admin")
     title = "Ajouter un responsables régional";
-  if (req.params.type == "nationaux_admin")
+  if (req.params.type == "national_admin")
     title = "Ajouter un responsables national";
 
   Quartier.find().then((quartiers) => {
+    if (req.user.type == "region_admin") {
+      let quartier = quartiers.find((item) => item._id === req.user.idQuartier);
+      quartiers = quartiers.filter(
+        (item) => quartier && item.idRegion == quartier.idRegion
+      );
+    }
+    if (req.user.type == "national_admin") {
+      let quartier = quartiers.find((item) => item._id === req.user.idQuartier);
+      quartiers = quartiers.filter(
+        (item) => quartier && item.idPays == quartie.idPays
+      );
+    }
     res.render("./users/add", {
       page: title,
       userdata: req.user,
@@ -85,88 +97,102 @@ router.get("/dashboard/users/add/:type", isAuthenticatedUser, (req, res) => {
   });
 });
 
+// BACKUP ANCIEN...
 router.get("/dashboard", isAuthenticatedUser, (req, res) => {
-  console.log(req);
-  User.find({ type: { $ne: "admin" } })
-    .then((users) => {
-      var nbre_user = users.length;
-      var nbre_ecole = users.filter(
-        (champ) => champ.type == "parent" && champ.ecole == req.user.id
-      ).length;
-
-      User.aggregate([
-        { $match: { type: "user" } },
-        {
-          $project: {
-            createdAt: {
-              $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+  console.log('Ce user est ', req.user.type)
+  const types = new Set(['region_admin', 'user', 'agent'])
+  if (req.user.type == "admin") {
+    User.find({ type: { $ne: "admin" } })
+      .then((users) => {
+        var nbre_user = users.filter((champ) => champ.type == "user").length;
+        var nbre_ecole = users.filter(
+          (champ) => champ.type == "provider"
+        ).length;
+        User.aggregate([
+          { $match: { type: { $in: ["user", "provider"] } } },
+          {
+            $project: {
+              createdAt: {
+                $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+              },
             },
           },
-        },
-        {
-          $group: {
-            _id: { createdAt: "$createdAt" },
-            count: { $sum: 1 },
+          {
+            $group: {
+              _id: { createdAt: "$createdAt" },
+              count: { $sum: 1 },
+            },
           },
-        },
-        {
-          $project: { _id: 0, createdAt: "$_id.createdAt", count: 1 },
-        },
-        {
-          $sort: { createdAt: -1 },
-        },
-      ])
-        .then((statdata_etudiant) => {
-          User.aggregate([
-            { $match: { type: "parent", ecole: req.user.id } },
-            {
-              $project: {
-                createdAt: {
-                  $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+          {
+            $project: { _id: 0, createdAt: "$_id.createdAt", count: 1 },
+          },
+          {
+            $sort: { createdAt: -1 },
+          },
+        ])
+          .then((statdata_etudiant) => {
+            Product.aggregate([
+              {
+                $project: {
+                  createdAt: {
+                    $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+                  },
                 },
               },
-            },
-            {
-              $group: {
-                _id: { createdAt: "$createdAt" },
-                count: { $sum: 1 },
+              {
+                $group: {
+                  _id: { createdAt: "$createdAt" },
+                  count: { $sum: 1 },
+                },
               },
-            },
-            {
-              $project: { _id: 0, createdAt: "$_id.createdAt", count: 1 },
-            },
-            {
-              $sort: { createdAt: -1 },
-            },
-          ])
-            .then((statdata_ecole) => {
-              var admin = req.user.id;
-              res.render("./users/dashboard", {
-                users: users,
-                page: "Dashboard",
-                userdata: req.user,
-                user_admin_id: req.user._id,
-                menu: "",
-                nbre_user: nbre_user,
-                nbre_parent: nbre_ecole,
-                nbre_message_programme: 0,
-                nbre_message_total: 0,
-                statdata_etudiant,
-                statdata_ecole,
-                admin,
+              {
+                $project: { _id: 0, createdAt: "$_id.createdAt", count: 1 },
+              },
+              {
+                $sort: { createdAt: -1 },
+              },
+            ])
+              .then((statdata) => {
+                var product = 0;
+                for (let item of statdata) {
+                  product += item.count;
+                }
+                Publicite.countDocuments().then((pubs) => {
+                  var admin = req.user.id;
+                  res.render("./users/dashboard", {
+                    users: users,
+                    page: "Dashboard",
+                    userdata: req.user,
+                    user_admin_id: req.user._id,
+                    menu: "",
+                    nbre_user: nbre_user,
+                    nbre_parent: nbre_ecole,
+                    nbre_message_programme: pubs,
+                    nbre_message_total: product,
+                    statdata_etudiant,
+                    statdata_ecole: statdata,
+                    admin,
+                  });
+                });
+              })
+              .catch((err) => {
+                console.log(err);
               });
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  } else if (types.has(req.user.type)) {
+    res.redirect("/dashboard/users/agent");
+  } else if (req.user.type == "national_admin") {
+    res.redirect("/dashboard/users/region_admin");
+  } else {
+    res.redirect("/login");
+  }
 });
 
 router.get("/logout", isAuthenticatedUser, (req, res) => {
@@ -212,7 +238,7 @@ router.get("/dashboard/users/:type", isAuthenticatedUser, (req, res) => {
   if (req.params.type == "agent") title = "Liste des agents de rue";
   if (req.params.type == "region_admin")
     title = "Liste des responsables régionaux";
-  if (req.params.type == "nationaux_admin")
+  if (req.params.type == "national_admin")
     title = "Liste des responsables nationaux";
 
   User.find({ type: req.params.type })
@@ -223,12 +249,26 @@ router.get("/dashboard/users/:type", isAuthenticatedUser, (req, res) => {
         populate: { path: "idRegion", populate: { path: "idPays" } },
       },
     })
+    .populate("plan")
     .sort({ createdAt: -1 })
     .then((users) => {
-      console.log(users);
+      if (req.user.type == "region_admin") {
+        Quartier.findOne({ _id: req.user.idQuartier }).then((quartier) => {
+          users = users.filter(
+            (item) => item.idQuartier.iRegion == quartier.idRegion
+          );
+        });
+      }
+      if (req.user.type == "national_admin") {
+        Quartier.findOne({ _id: req.user.idQuartier }).then((quartier) => {
+          users = users.filter(
+            (item) => item.idQuartier.idPays == quartier.idPays
+          );
+        });
+      }
       res.render("./users/allusers", {
         users: users,
-        page: "Utilisateurs",
+        page: title,
         userdata: req.user,
         user_admin_id: req.user._id,
         menu: "user",
@@ -263,6 +303,8 @@ router.get("/api/quartiers", (req, res) => {
     .populate("idPays")
     .sort({ createdAt: -1 })
     .then((quartiers) => {
+      var pays = req.query.pays;
+      if (pays) quartiers = quartiers.filter((item) => item.idPays._id == pays);
       res.status(200).json({
         quartiers: quartiers,
       });
@@ -271,13 +313,47 @@ router.get("/api/quartiers", (req, res) => {
       console.log(err);
     });
 });
-
+router.get("/api/user/:id", (req, res) => {
+  User.findOne({ _id: req.params.id })
+    .populate({
+      path: "idQuartier",
+      populate: {
+        path: "idVille",
+        populate: { path: "idRegion", populate: { path: "idPays" } },
+      },
+    })
+    .populate("domaines")
+    .populate("plan")
+    .sort({ createdAt: -1 })
+    .then((user) => {
+      res.status(200).json({
+        user: user,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
 router.get(
   "/dashboard/users/edit/:id/:type",
   isAuthenticatedUser,
   (req, res) => {
     let searchQuery = { _id: req.params.id };
     Quartier.find().then((quartiers) => {
+      if (req.user.type == "region_admin") {
+        let quartier = quartiers.find(
+          (item) => item._id == req.user.idQuartier
+        );
+        quartiers = quartiers.filter(
+          (item) => item.idRegion == quartier.idRegion
+        );
+      }
+      if (req.user.type == "national_admin") {
+        let quartier = quartiers.find(
+          (item) => item._id == req.user.idQuartier
+        );
+        quartiers = quartiers.filter((item) => item.idPays == quartier.idPays);
+      }
       User.findOne(searchQuery)
         .then((user) => {
           res.render("./users/add", {
@@ -313,10 +389,6 @@ router.get("/reset-password/:id", (req, res) => {
 
 router.get("/user/details/:id", (req, res) => {
   User.findOne({ _id: req.params.id })
-    // .populate('eleve_honneur','_id titre_honneur annee_honneur description_honneur attestation_honneur')
-    // .populate('eleve_experience','_id titre_poste_eleve entreprise_eleve debut_entreprise fin_entreprise desc_poste_eleve attestation_entreprise_eleve')
-    // .populate('eleve_langue','_id langue_eleve attestation_langue_eleve')
-    // .populate('eleve_education','_id niveau_etude_eleve specialisation_eleve etablissement_eleve pays_etablissement debut_etablissement fin_etablissement desc_formation resultat_formation bulletin_eleve diplome_eleve')
     .then((user) => {
       return res.status(200).json({
         type: "success",
@@ -340,7 +412,7 @@ router.get("/user/details-profile/:username", (req, res) => {
           },
         }
       )
-        .then((lange) => {
+        .then(() => {
           return res.status(200).json({
             type: "success",
             data: user,
@@ -366,24 +438,31 @@ router.post(
     failureFlash: true,
   })
 );
-router.get("/successjson", function (req, res) {
-  console.log('successjson', req.body)
-  res.status(200).json({ success: "Login ok.", user: req.user });
+router.get("/successjson", async function (req, res) {
+  console.log('successjson -> ')
+  const user = await User.findOne({ _id: req.user._id })
+    .populate({
+      path: "idQuartier",
+      populate: {
+        path: "idVille",
+        populate: { path: "idRegion", populate: { path: "idPays" } },
+      },
+    })
+    .populate("plan");
+    console.log('user pris =>  ', user)
+    res.status(200).json({ success: "Login ok.", user: req.user });
 });
 
-router.get("/failurejson", function (req, res) {
-  console.log('failurejson', req.body)
+router.get("/failurejson", async function (req, res) {
+  console.log('failurejson ==> ')
   res.status(401).json({ error: "Identifiants invalides." });
 });
 
 //api auth
 router.post("/api/login", function (req, res, next) {
-  console.log('ICICC ', req.body)
   var langue = req.body.lang;
-  console.log(req.body.phone);
 
-  passport.authenticate("local", function (err, user, info) {
-    console.log('fet => ', user);
+  passport.authenticate("local", function (err, user) {
     if (err) {
       return next(err);
     }
@@ -399,6 +478,14 @@ router.post("/api/login", function (req, res, next) {
         return next(err);
       }
       User.findOne({ _id: req.user._id })
+        .populate({
+          path: "idQuartier",
+          populate: {
+            path: "idVille",
+            populate: { path: "idRegion", populate: { path: "idPays" } },
+          },
+        })
+        .populate("plan")
         .then((user) => {
           return res.status(200).json({
             type: "success",
@@ -434,27 +521,22 @@ router.post("/api/login", function (req, res, next) {
  */
 router.post("/signup", (req, res, next) => {
   const form = formidable({ multiples: true });
-  var filese = [];
-  var champs = [];
-  form.on("file", function (field, file) {
-    filese.push({ field: field, file: file });
-  });
-  form.on("field", function (fieldName, fieldValue) {
-    champs.push({
-      key: fieldName,
-      value: fieldValue == "undefined" ? "" : fieldValue,
-    });
-  });
+
   form.parse(req, (err, fields, files) => {
     if (err) {
       console.log(err);
       next(err);
       return;
     }
-    console.log(fields);
 
+    if (files && files.image && files.image.name) {
+      const url = uploadFileWithFormidable(files.image, "public/images/");
+      if (url) fields.image = url.split("public")[1];
+    }
+    if (fields.categories) fields.domaines = fields.categories.split(",");
     if (fields.id_user == "no" || !fields.id_user) {
       fields.code = Math.floor(1000 + Math.random() * 9000);
+      if (fields.type_req == "admin") fields.active = 1;
       User.register(fields, fields.password, (err, user) => {
         if (err) {
           console.log(err);
@@ -467,24 +549,7 @@ router.post("/signup", (req, res, next) => {
           return res.status(400).json({ type: "error", message: message });
         }
         user.setPassword(fields.password);
-        console.log('User created ', SMS_LINK, user.phone.split("+")[1], fields)
-        // if (fields.send_sms == "yes") {
-          console.log('send_sms try => ', user.phone)
-          const msg_sms = `Votre code de validation est ${user.code}`
-          // axios
-          //   .get(
-          //     SMS_LINK +
-          //       "&destination=" +
-          //       user.phone.split("+")[1] +
-          //       "&message=Votre code de validation est " +
-          //       user.code
-          //   )
-          //   .then(function (response) {
-          //     console.log('success sms =>', response);
-          //   })
-          //   .catch((err) => console.log('Failed sms =>', err));
-        // }
-
+        const msg_sms = `Votre code de validation est ${user.code}`
         // Envoi SMS ici..
         sendSms(user.phone, msg_sms)
         // Fin envoi SMS..
@@ -496,21 +561,33 @@ router.post("/signup", (req, res, next) => {
       });
     } else {
       let searchQuery = { _id: fields.id_user };
-      let password= fields.password;
+      let password = fields.password;
       delete fields.password;
+
       User.updateOne(searchQuery, {
         $set: fields,
       })
-        .then((user) => {
-          if (password) {
-            user.setPassword(password);
-          }
-          return res.status(200).json({
-            type: "success",
-            message: "Compte modifié avec succès !",
-            redirector: fields.savetype,
-            user: user,
-          });
+        .then(() => {
+          User.findOne(searchQuery)
+            .populate({
+              path: "idQuartier",
+              populate: {
+                path: "idVille",
+                populate: { path: "idRegion", populate: { path: "idPays" } },
+              },
+            })
+            .populate("plan")
+            .then((user) => {
+              if (password) {
+                user.setPassword(password);
+              }
+              return res.status(200).json({
+                type: "success",
+                message: "Compte modifié avec succès !",
+                redirector: fields.savetype,
+                user: user,
+              });
+            });
         })
         .catch((err) => {
           console.log(err);
@@ -525,7 +602,7 @@ router.post("/signup", (req, res, next) => {
 router.post("/password/change", (req, res) => {
   User.findOne({ _id: req.body.user_id })
     .then((user) => {
-      user.setPassword(req.body.password, (err) => {
+      user.setPassword(req.body.password, () => {
         user.save().then((user) => {
           return res.status(200).json({
             type: "success",
@@ -544,7 +621,7 @@ router.post("/password/change", (req, res) => {
 });
 
 //Routes to handle forgot password
-router.post("/forgot-pwd", (req, res, next) => {
+router.post("/forgot-pwd", (req, res) => {
   var code = Math.floor(1000 + Math.random() * 9000);
   let searchQuery = { phone: req.body.phone };
   User.updateOne(searchQuery, {
@@ -552,7 +629,7 @@ router.post("/forgot-pwd", (req, res, next) => {
       code: code,
     },
   })
-    .then((user) => {
+    .then(() => {
       User.findOne(searchQuery).then((u) => {
         if (u) {
           return res.status(200).json({
@@ -592,22 +669,128 @@ router.get("/activate-user/:id", (req, res) => {
       active: 1,
     },
   })
-    .then((user) => {
-      User.findOne(searchQuery).then((u) => {
-        if (u) {
-          return res
-            .status(200)
-            .json({ message: "Votre compte à été activé!", user: u });
-        } else {
-          return res.status(400).json({
-            message: "Aucun utilisateur trouvé!",
-          });
-        }
-      });
+    .then(() => {
+      User.findOne(searchQuery)
+        .populate({
+          path: "idQuartier",
+          populate: {
+            path: "idVille",
+            populate: { path: "idRegion", populate: { path: "idPays" } },
+          },
+        })
+        .populate("plan")
+        .then((u) => {
+          if (u) {
+            return res
+              .status(200)
+              .json({ message: "Votre compte à été activé!", user: u });
+          } else {
+            return res.status(400).json({
+              message: "Aucun utilisateur trouvé!",
+            });
+          }
+        });
     })
     .catch((err) => {
       return res.status(422).json({ error: err });
     });
+});
+
+router.get("/api/activate-saller/:id", (req, res) => {
+  let searchQuery = { _id: req.params.id };
+  let data = {};
+  if (req.query.type == "open_seller_account") {
+    data = {
+      isSaller: 1,
+      becomeSallerAt: Date.now(),
+      saller_pay_token: req.query.token,
+    };
+  } else if (req.query.type == "pub" || req.query.type == "product") {
+    data = {
+      is_pay: 1,
+      pay_date: Date.now(),
+      pay_token: req.query.token,
+    };
+  } else {
+    data = {
+      isVip: 1,
+      subscriptionDate: Date.now(),
+      vip_pay_token: req.query.token,
+      plan: req.query.plan,
+    };
+  }
+  if (req.query.type == "pub") {
+    Publicite.updateOne(
+      { _id: req.query.id },
+      {
+        $set: data,
+      }
+    )
+      .then((resdata) => {
+        return res.status(200).json({
+          message: "Paiement effectué avec succès!",
+          data: resdata,
+        });
+      })
+      .catch((err) => {
+        return res.status(422).json({ error: err });
+      });
+  } else if (req.query.type == "product") {
+    ProductOffer.updateOne(
+      { _id: req.query.id },
+      {
+        $set: data,
+      }
+    )
+      .then((resdata) => {
+        return res.status(200).json({
+          message: "Paiement effectué avec succès!",
+          data: resdata,
+        });
+      })
+      .catch((err) => {
+        return res.status(422).json({ error: err });
+      });
+  } else {
+    User.updateOne(searchQuery, {
+      $set: data,
+    })
+      .then(() => {
+        User.findOne(searchQuery)
+          .populate({
+            path: "idQuartier",
+            populate: {
+              path: "idVille",
+              populate: { path: "idRegion", populate: { path: "idPays" } },
+            },
+          })
+          .populate("plan")
+          .then((u) => {
+            if (u) {
+              if (req.query.plan) {
+                Vip.findOne({ _id: req.query.plan }).then(async (plan) => {
+                  return res.status(200).json({
+                    message: "Votre compte vendeur à été activé!",
+                    user: u,
+                  });
+                });
+              } else {
+                return res.status(200).json({
+                  message: "Votre compte vendeur à été activé!",
+                  user: u,
+                });
+              }
+            } else {
+              return res.status(400).json({
+                message: "Aucun utilisateur trouvé!",
+              });
+            }
+          });
+      })
+      .catch((err) => {
+        return res.status(422).json({ error: err });
+      });
+  }
 });
 
 /**
@@ -631,7 +814,7 @@ router.put("/edit/:id", (req, res) => {
         active: req.body.active,
       },
     })
-      .then((user) => {
+      .then(() => {
         Formation.update(
           { user_id: req.params.id },
           {
@@ -672,45 +855,12 @@ router.put("/edit/:id", (req, res) => {
   }
 });
 
-//Update residence Api
-// router.put('/residence/:id', (req,res) =>{
-//     let searchQuery = {_id:req.params.id}
-//     User.updateOne(searchQuery, {$set: {residence: req.body.residence}})
-//     .then(user =>{
-//         return res.status(200).json({ message: 'User updated successfully', user: {residence: req.body.residence, phone: req.body.phone} })
-//     })
-//     .catch(err =>{
-//         return res.status(422).json({ error: 'ERROR: '+err })
-//     })
-// })
-
-//Delete route starts here
-router.delete("/delete/user/:id", (req, res) => {
-  let searchQuery = { _id: req.params.id };
-
-  // User.updateOne(searchQuery, {$set: {active:0}})
-  //     .then(user =>{
-  //         if(req.body.type !== 'admin'){
-  //             return res.status(200).json({ message: 'User blocked successfully' })
-  //         }
-  //         req.flash('success_msg', 'User blocked successfully')
-  //         res.redirect('/users/all')
-  //     })
-  //     .catch(err =>{
-  //         if(req.body.type !== 'admin'){
-  //             return res.status(422).json({ error: 'ERROR: '+err })
-  //         }
-  //         req.flash('error_msg', 'ERROR: '+err)
-  //         res.redirect('/users/all')
-  //     })
-});
-
 //Delete route starts here
 router.delete("/undelete/user/:id", (req, res) => {
   let searchQuery = { _id: req.params.id };
 
   User.updateOne(searchQuery, { $set: { active: 1 } })
-    .then((user) => {
+    .then(() => {
       if (req.body.type !== "admin") {
         return res.status(200).json({ message: "User unblocked successfully" });
       }
@@ -731,7 +881,7 @@ router.get("/dashboard/user-delete/:id", (req, res) => {
   let searchQuery = { _id: req.params.id };
 
   User.deleteOne(searchQuery)
-    .then((lang) => {
+    .then(() => {
       return res.status(200).json({ type: "succes" });
     })
     .catch((err) => {
@@ -740,14 +890,29 @@ router.get("/dashboard/user-delete/:id", (req, res) => {
     });
 });
 
-router.get("/api/search_student", (req, res) => {
-  User.find({ type: "Etudiant" })
-    .sort({ createdAt: -1 })
-    .then((lang) => {
+router.get("/api/find-user", (req, res) => {
+  let queryData = { type: "provider" };
+  if (req.query.quartier)
+    queryData["idQuartier"] = mongoose.Types.ObjectId(req.query.quartier);
+  if (req.query.cat)
+    queryData.domaines = {
+      $in: [req.query.cat],
+    };
+
+  User.find(queryData)
+    .populate({
+      path: "idQuartier",
+      populate: {
+        path: "idVille",
+        populate: { path: "idRegion", populate: { path: "idPays" } },
+      },
+    })
+    .sort({ note: -1 })
+    .then((data) => {
       return res.status(200).json({
         type: "success",
         message: "Etudiant récupéré avec succès !",
-        data: lang,
+        data: data,
       });
     })
     .catch((err) => {
@@ -755,59 +920,198 @@ router.get("/api/search_student", (req, res) => {
     });
 });
 
-router.get("/api/like/:id", (req, res) => {
-  User.findOne({ _id: req.query.studentId })
-    .then((user) => {
-      user.like(req.params.id).then((result) => {
-        User.findOne({ _id: req.params.id }).then((ecole) => {
-          ReponseMail.findOne({ user_id: req.params.id }).then((rep) => {
-            var subject = rep.subject_like;
-            var body = "";
-            body = replaceAll(
-              rep.content_like,
-              "#ecole_name#",
-              ecole.nom_ecole
-            );
-            body = replaceAll(body, "#ecole_email#", ecole.email);
-            body = replaceAll(body, "#etudiant_name#", user.name);
-            body = replaceAll(body, "#etudiant_email#", user.email);
-            let mailOptions = {
-              to: user.email,
-              from: "no-reply@smartcodegroup.com",
-              subject: subject ? subject : "Like du profil",
-              text: body
-                ? body
-                : "Hello, " +
-                  user.username +
-                  "\n\n" +
-                  ecole.nom_ecole +
-                  " Like your profil",
-            };
-            smtpTransport.sendMail(mailOptions, (err) => {
-              addNotification(
-                req,
-                req.params.id,
-                "A liker votre profil",
-                req.query.studentId,
-                false,
-                "/ecole/" + ecole.username
-              )
-                .then((resp) => {
-                  return res
-                    .status(200)
-                    .json({ type: "success", message: "success", data: user });
-                })
-                .catch((err) => {
-                  console.log(err);
-                  return res.status(422).json({ message: "ERROR: " + err });
-                });
+router.post("/api/reviews", (req, res) => {
+  const form = formidable({ multiples: true });
+  form.parse(req, (err, fields) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
+    if (fields.id == "no" || !fields.id) {
+      Review.create(fields, (err, data) => {
+        if (err) {
+          var message = "Une erreur s'est produite";
+          return res.status(400).json({ type: "error", message: message });
+        }
+        Review.find({ provider: fields.provider }).then((reviews) => {
+          let note = 0;
+          for (let rev of reviews) {
+            note += rev.note;
+          }
+          User.updateOne(
+            { _id: fields.provider },
+            {
+              $set: { note: (note / reviews.length).toFixed(1) },
+            }
+          ).then((resp) => {
+            return res.status(200).json({
+              type: "success",
+              message: "Config ajouté avec succès!",
+              data: data,
             });
           });
         });
       });
+    } else {
+      let searchQuery = { _id: fields.id };
+      Review.updateOne(searchQuery, {
+        $set: fields,
+      })
+        .then((result) => {
+          return res.status(200).json({
+            type: "success",
+            message: "Publicité modifié avec succès !",
+            redirector: fields.savetype,
+            data: result,
+          });
+        })
+        .catch((err) => {
+          return res
+            .status(400)
+            .json({ type: "error", message: "ERROR: " + err });
+        });
+    }
+  });
+});
+
+router.get("/api/reviews/:provider", (req, res) => {
+  Review.find({ provider: req.params.provider })
+    .populate("user")
+    .populate("provider")
+    .sort({ createdAt: -1 })
+    .then((data) => {
+      return res.status(200).json({
+        type: "success",
+        message: "Avis récupéré avec succès !",
+        data: data,
+      });
     })
     .catch((err) => {
-      return res.status(422).json({ error: "ERROR: " + err });
+      console.log(err);
     });
 });
+
+router.get("/dashboard/import", isAuthenticatedUser, (req, res) => {
+  res.render("./users/import", {
+    page: "Importer la liste des utilisateurs",
+    userdata: req.user,
+    user_admin_id: req.user._id,
+    menu: "user",
+  });
+});
+
+router.post("/dashboard/import", isAuthenticatedUser, (req, res) => {
+  const form = formidable({ multiples: true });
+  form.parse(req, (err, fields, files) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    if (files && files.fichier && files.fichier.name) {
+      // File path.
+      readXlsxFile(files.fichier.path)
+        .then(async (rows) => {
+          let users = [];
+          for (let user of rows) {
+            let userData = {
+              phone: formatPhone(user[0].toString(), user[7].toString()),
+              name: user[1],
+              type: user[2] && user[2] != "NULL" ? "provider" : "user",
+            };
+            let fuser = users.find((item) => item.phone == userData.phone);
+            if (!fuser || fuser == undefined) {
+              if (user[3] && user[3] != "NULL") {
+                let qt = await getQuartier(
+                  user[3].toString(),
+                  user[4].toString(),
+                  user[5].toString(),
+                  user[6].toString()
+                );
+                if (qt) userData.idQuartier = qt;
+              }
+              if (user[2] && user[2] != "NULL") {
+                let dm = await getDomaine(user[2].toString());
+                if (dm) userData.domaines = [dm];
+              }
+              users.push(userData);
+            }
+          }
+          User.insertMany(users, {
+            ordered: false,
+          })
+            .then((res) => {
+              sendNotification(fields.email);
+            })
+            .catch((err) => {
+              sendNotification(fields.email);
+            });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+    return res.status(200).json({
+      type: "success",
+      message:
+        "Importation en cours. vous serez notifier à la fin de l'import!",
+      data: null,
+    });
+  });
+});
+const getDomaine = async (name) => {
+  let cat = await Category.findOne({ name: { $regex: name } });
+  if (cat) return cat._id;
+  else {
+    let data = {
+      name,
+    };
+    cat = await Category.create(data);
+    return cat._id;
+  }
+};
+const getQuartier = async (name, cityName, regionName, code) => {
+  let quartier = await Quartier.findOne({ name: { $regex: name } });
+  if (quartier) return quartier._id;
+  else {
+    let data = {
+      name,
+    };
+    let city = await Ville.findOne({ name: { $regex: cityName } });
+    if (city) {
+      data.idVille = city._id;
+      data.idRegion = city.idRegion;
+      data.idPays = city.idPays;
+    } else {
+      let cdata = {
+        name: cityName,
+      };
+      let region = await Region.findOne({ name: { $regex: regionName } });
+      if (region) {
+        cdata.idRegion = region._id;
+        cdata.idPays = region.idPays;
+      } else {
+        let rdata = {
+          name: regionName,
+        };
+        let pays = await Pays.findOne({ code });
+        if (pays) {
+          rdata.idPays = pays._id;
+        } else {
+          pays = await Pays.create({ code, name: code });
+          rdata.idPays = pays._id;
+        }
+        region = await Region.create(rdata);
+        cdata.idRegion = region._id;
+        cdata.idPays = region.idPays;
+      }
+      city = await Ville.create(cdata);
+      data.idVille = city._id;
+      data.idRegion = city.idRegion;
+      data.idPays = city.idPays;
+    }
+    quartier = await Quartier.create(data);
+    return quartier._id;
+  }
+};
 module.exports = router;

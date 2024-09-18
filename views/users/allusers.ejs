@@ -29,7 +29,7 @@
                                         <th>Nom et prénom</th>
                                         <th>Téléphone</th>
                                         <th>Adresse</th>
-                                        <th>Inscrit(e) le</th>
+                                        <th>Inscris le</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -44,9 +44,9 @@
                                          
                                         </td>
                                         <td><%= user.phone %></td>
-                                        <td><%= user.idQuartier.name %>, <%= user.idQuartier.idVille.name %>, <%= user.idQuartier.idVille.idRegion.name %>, <%= user.idQuartier?.idVille?.idRegion?.idPays?.name %></td>
+                                        <td><%= user.idQuartier && user.idQuartier.name %>, <%= user.idQuartier && user.idQuartier.idVille && user.idQuartier.idVille.name %>, <%= user.idQuartier && user.idQuartier.idVille && user.idQuartier.idVille.idRegion && user.idQuartier.idVille.idRegion.name %>, <%= user.idQuartier && user.idQuartier.idVille && user.idQuartier.idVille.idRegion && user.idQuartier.idVille.idRegion.idPays && user.idQuartier.idVille.idRegion.idPays.name %></td>
                                         
-                                        <td><%= user &&  new Date(user?.createdAt).toLocaleDateString() %></td>
+                                        <td><%= user &&  new Date(user.createdAt).toLocaleDateString() %></td>
                                         <td>
                                             <!-- <a href="/user/details/<%= user.id %>" class="btn-hover btn-border-radius color-4 p-1"><i class="fa fa-eye"></i> View</a>
                                             <a href="/edit/<%= user.id %>" class="btn-hover btn-border-radius color-6 p-3"><i class="fa fa-edit"></i> edit</a> -->

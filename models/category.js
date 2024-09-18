@@ -2,7 +2,9 @@ const mongoose = require('mongoose')
 
 const categorySchema = mongoose.Schema({
     name: { type: String },
+    name_en: { type: String },
     description: { type: String },
+    image: { type: String },
     parentId: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Category' 
