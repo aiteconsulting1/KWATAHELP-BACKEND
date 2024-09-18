@@ -1,5 +1,6 @@
 module.exports = {
-    DATABASE:'mongodb://localhost:27017/kwatahelp2',
+    // DATABASE:'mongodb://localhost:27017/kwatahelp2',
+    DATABASE:'mongodb+srv://bailleur:Bailleur20@serverlessinstance1.grvws.mongodb.net/kwatahelp',
     GMAIL_EMAIL : 'mbzcorporation@gmail.com',
     GMAIL_PASSWORD : 'Cissemariama1',
     PORT : 3000,
