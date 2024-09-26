@@ -190,6 +190,8 @@ router.get("/dashboard", isAuthenticatedUser, (req, res) => {
     res.redirect("/dashboard/users/agent");
   } else if (req.user.type == "national_admin") {
     res.redirect("/dashboard/users/region_admin");
+  } else if (req.user.type == "provider") {
+    res.redirect("/dashboard/users/provider");
   } else {
     res.redirect("/login");
   }
@@ -551,6 +553,7 @@ router.post("/signup", (req, res, next) => {
         user.setPassword(fields.password);
         const msg_sms = `Votre code de validation est ${user.code}`
         // Envoi SMS ici..
+        console.log('debut SMS =>')
         sendSms(user.phone, msg_sms)
         // Fin envoi SMS..
         return res.status(200).json({
