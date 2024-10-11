@@ -16,10 +16,12 @@ const Ville = require("../models/ville");
 const Region = require("../models/region");
 const Category = require("../models/category");
 const mongoose = require("mongoose");
+const path = require('path')
 
 const {
   isAuthenticatedUser,
   uploadFileWithFormidable,
+  saveFile,
   formatPhone,
   sendNotification,
   sendSms,
@@ -523,7 +525,6 @@ router.post("/api/login", function (req, res, next) {
  */
 router.post("/signup", (req, res, next) => {
   const form = formidable({ multiples: true });
-
   form.parse(req, (err, fields, files) => {
     if (err) {
       console.log(err);
@@ -532,8 +533,12 @@ router.post("/signup", (req, res, next) => {
     }
 
     if (files && files.image && files.image.name) {
-      const url = uploadFileWithFormidable(files.image, "public/images/");
-      if (url) fields.image = url.split("public")[1];
+      // const url = uploadFileWithFormidable(files.image, "public/images/");
+      const uploadDir = 'public/images'
+      const url = saveFile(files.image, uploadDir)
+      console.log('files ==>', url)
+      // if (url) fields.image = url.split("public")[1];
+      if (url) fields.image = url;
     }
     if (fields.categories) fields.domaines = fields.categories.split(",");
     if (fields.id_user == "no" || !fields.id_user) {

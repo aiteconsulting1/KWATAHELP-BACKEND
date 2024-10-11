@@ -1,5 +1,6 @@
 const nodemailer = require("nodemailer");
 var fs = require("fs");
+const path = require('path')
 const axios = require('axios')
 const { mailTemplate } = require("./mailTemplate");
 const { SMS_LINK_MTARGET } = require("../config/keys");
@@ -17,6 +18,26 @@ const replaceAll = (str, find, replace) => {
   var escapedFind = find.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
   return str.replace(new RegExp(escapedFind, "g"), replace);
 };
+
+const saveFile = (file, uploadDir) => {
+  const fileName = `${Date.now()}_${file.name}`
+  const filePath = path.join(uploadDir, fileName)
+  const tempPath = file.path
+  if (!fs.existsSync(tempPath)) {
+    throw new Error(`Le fichier temporaire n'existe pas: ${tempPath}`)
+  }
+  try {
+    fs.copyFileSync(tempPath, filePath)
+    fs.unlinkSync(tempPath)  // Supprimer le fichier temporaire après copie
+    console.log(`Fichier copié à : ${filePath}`)
+  } catch (err) {
+    console.error(`Erreur lors de la copie du fichier: ${err.message}`)
+    throw err
+  }
+
+  return `/images/${fileName}`
+}
+
 const uploadFileWithFormidable = (file, uploadDir, name = "") => {
   if (file) {
     var oldpath = file.path;
@@ -140,6 +161,7 @@ module.exports = {
   replaceAll,
   smtpTransport,
   uploadFileWithFormidable,
+  saveFile,
   formatPhone,
   sendNotification,
   sendSms,
