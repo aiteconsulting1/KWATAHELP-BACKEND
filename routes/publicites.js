@@ -10,6 +10,7 @@ const formidable = require("formidable");
 const {
   isAuthenticatedUser,
   uploadFileWithFormidable,
+  saveFile,
 } = require("../helpers/utils");
 
 router.get("/dashboard/publicites/", isAuthenticatedUser, (req, res) => {
@@ -122,8 +123,10 @@ router.post("/api/pub-setting", (req, res) => {
       return;
     }
     if (files && files.image && files.image.name) {
-      const url = uploadFileWithFormidable(files.image, "public/images/");
-      if (url) fields.image = url.split("public")[1];
+      // const url = uploadFileWithFormidable(files.image, "public/images/");
+      // if (url) fields.image = url.split("public")[1];
+      const url = saveFile(files.image, "public/images");
+      if (url) fields.image = url;
     }
     if (fields.id == "no" || !fields.id) {
       Setting.create(fields, (err, data) => {
@@ -167,8 +170,10 @@ router.post("/api/publicites", (req, res) => {
       return;
     }
     if (files && files.image && files.image.name) {
-      const url = uploadFileWithFormidable(files.image, "public/images/");
-      if (url) fields.image = url.split("public")[1];
+      // const url = uploadFileWithFormidable(files.image, "public/images/");
+      // if (url) fields.image = url.split("public")[1];
+      const url = saveFile(files.image, "public/images");
+      if (url) fields.image = url;
     }
     console.log("fields", fields);
     fields.quartiers = fields.quartiers.split(",");

@@ -7,6 +7,7 @@ const formidable = require("formidable");
 const {
   isAuthenticatedUser,
   uploadFileWithFormidable,
+  saveFile,
 } = require("../helpers/utils");
 
 router.get("/dashboard/helps/", isAuthenticatedUser, (req, res) => {
@@ -65,8 +66,10 @@ router.post("/dashboard/helps", isAuthenticatedUser, (req, res) => {
       return;
     }
     if (files && files.image && files.image.name) {
-      const url = uploadFileWithFormidable(files.image, "public/images/");
-      if (url) fields.image = url.split("public")[1];
+      // const url = uploadFileWithFormidable(files.image, "public/images/");
+      const url = saveFile(files.image, "public/images");
+      // if (url) fields.image = url.split("public")[1];
+      if (url) fields.image = url
     }
     if (fields.id == "no" || !fields.id) {
       Help.create(fields, (err, logement) => {

@@ -7,6 +7,7 @@ const formidable = require("formidable");
 const {
   uploadFileWithFormidable,
   isAuthenticatedUser,
+  saveFile,
 } = require("../helpers/utils");
 
 router.get("/dashboard/products/", isAuthenticatedUser, (req, res) => {
@@ -74,8 +75,10 @@ router.post("/api/products", (req, res) => {
     var imageFiles = files ? files["images[]"] : [];
     if (!Array.isArray(imageFiles)) imageFiles = [imageFiles];
     for (image of imageFiles) {
-      const url = uploadFileWithFormidable(image, "public/images/");
-      if (url) images.push(url.split("public")[1]);
+      // const url = uploadFileWithFormidable(image, "public/images/");
+      const url = saveFile(image, "public/images");
+      // if (url) images.push(url.split("public")[1]);
+      if (url) images.push(url);
     }
 
     if (fields.id == "no" || !fields.id) {

@@ -8,6 +8,7 @@ const formidable = require("formidable");
 const {
   isAuthenticatedUser,
   uploadFileWithFormidable,
+  saveFile,
 } = require("../helpers/utils");
 
 router.get("/dashboard/offres/", (req, res) => {
@@ -92,8 +93,10 @@ router.post("/api/offres", (req, res) => {
       return;
     }
     if (files && files.attachment && files.attachment.name) {
-      const url = uploadFileWithFormidable(files.attachment, "public/images/");
-      if (url) fields.attachment = url.split("public")[1];
+      // const url = uploadFileWithFormidable(files.attachment, "public/images/");
+      const url = saveFile(files.attachment, "public/images/");
+      // if (url) fields.attachment = url.split("public")[1];
+      if (url) fields.attachment = url;
     }
     if (fields.id == "no" || !fields.id) {
       Offre.create(fields, (err, data) => {

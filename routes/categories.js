@@ -95,8 +95,11 @@ router.post("/dashboard/categories", isAuthenticatedUser, (req, res) => {
       return;
     }
     if (files && files.image && files.image.name) {
-      const url = uploadFileWithFormidable(files.image, "public/images/");
-      if (url) fields.image = url.split("public")[1];
+      
+      // const url = uploadFileWithFormidable(files.image, "public/images/");
+      const url = saveFile(files.image, 'public/images')
+      // if (url) fields.image = url.split("public")[1];
+      if (url) fields.image = url
     }
     if (fields.id == "no" || !fields.id) {
       Category.create(fields, (err, logement) => {
