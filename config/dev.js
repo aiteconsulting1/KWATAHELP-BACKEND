@@ -6,4 +6,5 @@ module.exports = {
     PORT : 3000,
     SMS_LINK: "https://obitsms.com/api/bulksms?username=kwatahelp@aite-consulting.com&password=lUw2hNjS&sender=KwataHelp",
     SMS_LINK_MTARGET: "https://api-public-2.mtarget.fr/messages",
+    SMS_LINK_NEXAH: "https://smsvas.com/bulk/public/index.php/api/v1/sendsms",
 }
