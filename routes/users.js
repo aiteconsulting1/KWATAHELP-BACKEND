@@ -25,6 +25,7 @@ const {
   formatPhone,
   sendNotification,
   sendSms,
+  sendNexahSms,
 } = require("../helpers/utils");
 
 //Get routes
@@ -559,7 +560,8 @@ router.post("/signup", (req, res, next) => {
         const msg_sms = `Votre code de validation est ${user.code}`
         // Envoi SMS ici..
         console.log('debut SMS =>')
-        sendSms(user.phone, msg_sms)
+        // sendSms(user.phone, msg_sms)
+        sendNexahSms(user.phone, msg_sms)
         // Fin envoi SMS..
         return res.status(200).json({
           type: "success",
