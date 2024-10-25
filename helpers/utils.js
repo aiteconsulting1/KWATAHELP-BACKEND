@@ -157,32 +157,32 @@ const sendSms = async (phoneNumber, message) => {
 }
 
 const sendNexahSms = async (phoneNumber, message) => {
-  // prepare mes donnees de l'API..
-  // const data = {
-  //   user: 'bessala.aristide@aite-consulting.com', // Votre nom d'utilisateur Nexa
-  //   password: 'kisskiss', // Votre mot de passe Nexa
-  //   senderid: 'KWATAHELP', // ID de l'expéditeur (choisissez selon votre compte)
-  //   sms: `${message}`, // Votre message
-  //   mobiles: `${phoneNumber}`, // Les numéros de téléphone à cibler (format international)
-  //   scheduletime: `${formatDate(Date.now())}` // Facultatif : heure programmée pour l'envoi
-  // }
-  const headers = {
-    'Content-Type': 'application/json',
-  }
 
   // Construire l'URL avec les paramètres
-  const url = `${SMS_LINK_NEXAH}?user=bessala.aristide@aite-consulting.com&password=kisskiss&senderid=KWATAHELP&sms='${message}'&mobiles=${phoneNumber}`
-  console.log('url nexah => ', url)
+  const url = `${SMS_LINK_NEXAH}?user=bessala.aristide@aite-consulting.com&password=kisskiss&senderid=KWATAHELP&sms='${message}'&mobiles=${phoneNumber}&scheduletime=${formatDate(Date.now())}`
+  
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  }
   try {
     // Envoi de ma requete Nexah
-    // const response = await axios.post(SMS_LINK_NEXAH, data, { headers })
-    const response = await axios.get(url)
+    const response = await axios.get(url, { headers })
 
-    // Gérer la réponse
-    console.log('Réponse:', response.data)
+     // Vérifier si l'envoi a échoué et gérer l'erreur
+    if (response.data.sms && response.data.sms[0].status === 'error') {
+
+      console.error('Erreur lors de l\'envoi du SMS:', response.data.sms[0].errordescription);
+
+      return response.data.sms[0].message; // Retourner le message d'erreur
+    }
+
+    return response.data;
+
   } catch (error) {
     // Gérer les erreurs
-    console.error('Erreur lors de l\'envoi du SMS:', error.response ? error.response.data : error.message)
+    console.error('Erreur lors de l\'envoi du SMS:', error)
+
   }
 }
 
